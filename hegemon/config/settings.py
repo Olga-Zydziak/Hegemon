@@ -1,75 +1,73 @@
 """
-HEGEMON Configuration - Multi-Provider Support (Claude + Gemini).
+HEGEMON Configuration - Google Secret Manager + Vertex AI.
 
 Supports:
-- Anthropic Claude (claude-sonnet-4.5)
-- Google Gemini (gemini-2.0-pro-exp)
-- OpenAI GPT (gpt-4o) - fallback
+- Anthropic Claude (API key from Secret Manager)
+- Google Gemini via Vertex AI (NO API key - uses ADC)
+- OpenAI (optional, API key from Secret Manager)
 """
 
 from __future__ import annotations
 
+import logging
+import os
 from pathlib import Path
 from typing import Literal
 
-from pydantic import Field, field_validator
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from google.cloud import secretmanager
+from pydantic import BaseModel, Field
+
+logger = logging.getLogger(__name__)
 
 
 # ============================================================================
-# Provider-Specific Settings
+# Google Secret Manager (from api_config.py)
 # ============================================================================
 
-class ProviderSettings(BaseSettings):
-    """API keys for different providers."""
-    
-    model_config = SettingsConfigDict(
-        env_file=".env",
-        env_file_encoding="utf-8",
-        case_sensitive=False,
-    )
-    
-    # API Keys
-    anthropic_api_key: str | None = Field(
-        default=None,
-        description="Anthropic API Key for Claude models"
-    )
-    
-    google_api_key: str | None = Field(
-        default=None,
-        description="Google API Key for Gemini models"
-    )
-    
-    openai_api_key: str | None = Field(
-        default=None,
-        description="OpenAI API Key (fallback)"
-    )
-    
-    @field_validator("anthropic_api_key", "google_api_key", "openai_api_key")
-    @classmethod
-    def validate_at_least_one_key(cls, v, info):
-        """Ensure at least one API key is provided."""
-        # This will be validated in HegemonSettings
-        return v
+def get_secret(project_id: str, secret_id: str, version_id: str = "latest") -> str:
+    """Pobiera wartość sekretu z Google Secret Manager."""
+    client = secretmanager.SecretManagerServiceClient()
+    name = f"projects/{project_id}/secrets/{secret_id}/versions/{version_id}"
+    response = client.access_secret_version(request={"name": name})
+    return response.payload.data.decode("UTF-8")
 
 
 # ============================================================================
-# Agent Configuration (Provider-Aware)
+# GCP Configuration (from api_config.py)
 # ============================================================================
 
-class AgentConfig(BaseSettings):
-    """
-    Base configuration for an agent with provider support.
-    
-    Attributes:
-        name: Agent name
-        provider: LLM provider (anthropic, google, openai)
-        model: Model identifier
-        temperature: Sampling temperature
-        max_tokens: Maximum response length
-        timeout: API timeout (seconds)
-        max_retries: Retry attempts on failure
-    """
+LOCATION = "us-central1"
+PROJECT_ID = "dark-data-discovery"
+
+
+# ============================================================================
+# API Keys - Loaded from Secret Manager
+# ============================================================================
+
+# Anthropic Claude - REQUIRED (used by 3 agents)
+ANTHROPIC_API_KEY = get_secret(PROJECT_ID, "ANTHROPIC_API_KEY")
+logger.info("✅ ANTHROPIC_API_KEY loaded from Secret Manager")
+
+# Google Gemini via Vertex AI - NO API KEY NEEDED!
+# Vertex AI uses Application Default Credentials (ADC)
+GOOGLE_API_KEY = None  # Not needed for Vertex AI
+logger.info("✅ Google Gemini will use Vertex AI (ADC authentication)")
+
+# OpenAI - OPTIONAL (backup provider)
+try:
+    OPENAI_API_KEY = get_secret(PROJECT_ID, "OPENAI_API_KEY")
+    logger.info("✅ OPENAI_API_KEY loaded from Secret Manager")
+except Exception:
+    OPENAI_API_KEY = None
+    logger.info("ℹ️ OPENAI_API_KEY not found (optional)")
+
+
+# ============================================================================
+# Agent Configuration
+# ============================================================================
+
+class AgentConfig(BaseModel):
+    """Base configuration for an agent."""
     
     name: str
     provider: Literal["anthropic", "google", "openai"]
@@ -78,59 +76,39 @@ class AgentConfig(BaseSettings):
     max_tokens: int = Field(default=2000, ge=100, le=16000)
     timeout: int = Field(default=60, ge=10, le=300)
     max_retries: int = Field(default=2, ge=0, le=5)
+    
+    # Vertex AI specific (for Google provider)
+    use_vertex_ai: bool = Field(
+        default=True,
+        description="Use Vertex AI (ADC auth) instead of Google AI API (API key)"
+    )
 
 
 # ============================================================================
-# RECOMMENDED CONFIGURATION (Claude + Gemini)
+# Agent Configurations (Claude + Gemini via Vertex AI)
 # ============================================================================
 
 class KatalizatorConfig(AgentConfig):
-    """
-    Katalizator: Claude Sonnet 4.5.
-    
-    Rationale:
-    - Zadanie: Kreatywne generowanie tez (divergent thinking)
-    - Claude jest znany z kreatywności i długich, spójnych outputów
-    - Temperature 0.8 dla wysokiej kreatywności
-    - Cost: $3/MTok input, $15/MTok output
-    """
-    
+    """Katalizator: Claude Sonnet 4.5."""
     name: str = "Katalizator"
     provider: Literal["anthropic", "google", "openai"] = "anthropic"
-    model: str = "claude-sonnet-4-5-20250929"  # Latest Claude
+    model: str = "claude-sonnet-4-5-20250929"
     temperature: float = 0.8
     max_tokens: int = 2000
 
 
 class SceptyKConfig(AgentConfig):
-    """
-    Sceptyk: Gemini 2.0 Pro.
-    
-    Rationale:
-    - Zadanie: Analityczne myślenie, znajdowanie wad
-    - Gemini 2.0 Pro ma świetny reasoning przy niskim koszcie
-    - 3x tańszy niż Claude ($1.25 vs $3 per MTok)
-    - Cost-effective dla intermediate output
-    """
-    
+    """Sceptyk: Gemini 2.0 Flash via Vertex AI."""
     name: str = "Sceptyk"
     provider: Literal["anthropic", "google", "openai"] = "google"
-    model: str = "gemini-2.0-flash-exp"  # Gemini 2.0 Pro Experimental
+    model: str = "gemini-2.5-pro"
     temperature: float = 0.6
     max_tokens: int = 2000
+    use_vertex_ai: bool = True  # Use Vertex AI (no API key)
 
 
 class GubernatorConfig(AgentConfig):
-    """
-    Gubernator: Claude Sonnet 4.5.
-    
-    Rationale:
-    - KRYTYCZNA rola: Meta-cognitive evaluation + routing
-    - Claude ma precyzyjny structured output
-    - Niższa temperatura (0.3) dla deterministycznych decyzji
-    - Worth premium cost dla critical path
-    """
-    
+    """Gubernator: Claude Sonnet 4.5."""
     name: str = "Gubernator"
     provider: Literal["anthropic", "google", "openai"] = "anthropic"
     model: str = "claude-sonnet-4-5-20250929"
@@ -139,19 +117,10 @@ class GubernatorConfig(AgentConfig):
 
 
 class SyntezatorConfig(AgentConfig):
-    """
-    Syntezator: Claude Sonnet 4.5.
-    
-    Rationale:
-    - KRYTYCZNA rola: Final synthesis (user-facing output)
-    - Claude jest najlepszy w tworzeniu spójnych, długich tekstów
-    - Synthesis wymaga głębokiego zrozumienia kontekstu
-    - Worth premium cost dla quality finalnego planu
-    """
-    
+    """Syntezator: Claude Sonnet 4.5."""
     name: str = "Syntezator"
     provider: Literal["anthropic", "google", "openai"] = "anthropic"
-    model: str = "claude-sonnet-4-5-20250929"
+    model: str = "claude-opus-4-1-20250805"
     temperature: float = 0.5
     max_tokens: int = 3000
 
@@ -160,107 +129,113 @@ class SyntezatorConfig(AgentConfig):
 # Debate Configuration
 # ============================================================================
 
-class DebateConfig(BaseSettings):
+class DebateConfig(BaseModel):
     """Configuration for dialectical debate process."""
     
-    consensus_threshold: float = Field(
-        default=0.7,
-        ge=0.0,
-        le=1.0,
-        description="Consensus threshold for debate termination"
-    )
-    max_cycles: int = Field(
-        default=5,
-        ge=1,
-        le=10,
-        description="Maximum debate cycles"
-    )
-    min_cycles: int = Field(
-        default=1,
-        ge=1,
-        le=3,
-        description="Minimum cycles (even with high consensus)"
-    )
-    enable_early_stopping: bool = Field(
-        default=True,
-        description="Stop early if consensus reached"
-    )
+    consensus_threshold: float = Field(default=0.7, ge=0.0, le=1.0)
+    max_cycles: int = Field(default=5, ge=1, le=10)
+    min_cycles: int = Field(default=1, ge=1, le=3)
+    enable_early_stopping: bool = Field(default=True)
 
 
 # ============================================================================
 # Main Settings
 # ============================================================================
 
-class HegemonSettings(BaseSettings):
+class HegemonSettings(BaseModel):
     """Main HEGEMON system configuration."""
     
-    model_config = SettingsConfigDict(
-        env_file=".env",
-        env_file_encoding="utf-8",
-        case_sensitive=False,
-        env_prefix="HEGEMON_",
-    )
+    # GCP Configuration
+    gcp_project_id: str = PROJECT_ID
+    gcp_location: str = LOCATION
     
-    # Provider API Keys
-    providers: ProviderSettings = Field(
-        default_factory=ProviderSettings
-    )
+    # API Keys
+    anthropic_api_key: str = ANTHROPIC_API_KEY
+    google_api_key: str | None = GOOGLE_API_KEY  # None for Vertex AI
+    openai_api_key: str | None = OPENAI_API_KEY
     
     # Logging
-    log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR"] = Field(
-        default="INFO",
-        description="Logging level"
-    )
+    log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR"] = "INFO"
     
     # Agent Configurations
-    katalizator: KatalizatorConfig = Field(
-        default_factory=KatalizatorConfig
-    )
-    sceptyk: SceptyKConfig = Field(
-        default_factory=SceptyKConfig
-    )
-    gubernator: GubernatorConfig = Field(
-        default_factory=GubernatorConfig
-    )
-    syntezator: SyntezatorConfig = Field(
-        default_factory=SyntezatorConfig
-    )
+    katalizator: KatalizatorConfig = Field(default_factory=KatalizatorConfig)
+    sceptyk: SceptyKConfig = Field(default_factory=SceptyKConfig)
+    gubernator: GubernatorConfig = Field(default_factory=GubernatorConfig)
+    syntezator: SyntezatorConfig = Field(default_factory=SyntezatorConfig)
     
     # Debate Configuration
-    debate: DebateConfig = Field(
-        default_factory=DebateConfig
-    )
+    debate: DebateConfig = Field(default_factory=DebateConfig)
     
     # Paths
-    output_dir: Path = Field(
-        default=Path("output"),
-        description="Output directory"
-    )
+    output_dir: Path = Field(default=Path("output"))
     
-    def validate_providers(self) -> None:
-        """Validate that required API keys are present."""
-        required_providers = set()
+    def validate_api_keys(self) -> None:
+        """Validate that required API keys/auth are present."""
+        # Anthropic required
+        if not self.anthropic_api_key:
+            raise ValueError(
+                "ANTHROPIC_API_KEY not found in Secret Manager. "
+                "Required for: Katalizator, Gubernator, Syntezator"
+            )
         
-        for agent_config in [self.katalizator, self.sceptyk, 
-                             self.gubernator, self.syntezator]:
-            required_providers.add(agent_config.provider)
+        # Google: Either API key OR Vertex AI (ADC)
+        if self.sceptyk.provider == "google":
+            if self.sceptyk.use_vertex_ai:
+                logger.info(
+                    "✅ Sceptyk will use Vertex AI (Application Default Credentials)"
+                )
+            elif not self.google_api_key:
+                raise ValueError(
+                    "GOOGLE_API_KEY not found and use_vertex_ai=False. "
+                    "Either set GOOGLE_API_KEY or use Vertex AI."
+                )
         
-        for provider in required_providers:
-            if provider == "anthropic" and not self.providers.anthropic_api_key:
-                raise ValueError(
-                    "ANTHROPIC_API_KEY required (used by Katalizator, Gubernator, Syntezator)"
-                )
-            if provider == "google" and not self.providers.google_api_key:
-                raise ValueError(
-                    "GOOGLE_API_KEY required (used by Sceptyk)"
-                )
-            if provider == "openai" and not self.providers.openai_api_key:
-                raise ValueError(
-                    "OPENAI_API_KEY required"
-                )
+        logger.info("✅ All required authentication validated")
 
 
-# Singleton
+# ============================================================================
+# Basic Config Agent (from api_config.py)
+# ============================================================================
+
+def basic_config_agent(
+    agent_name: str,
+    api_type: str,
+    location: str | None = None,
+    project_id: str | None = None,
+    api_key: str | None = None,
+) -> list[dict]:
+    """
+    Generate agent configuration dict (from api_config.py).
+    
+    Identical to api_config.py implementation.
+    """
+    try:
+        configuration = {"model": agent_name}
+        configuration.update({"api_type": api_type})
+        
+        if api_key:
+            configuration["api_key"] = api_key
+        if project_id:
+            configuration["project_id"] = project_id
+        if location:
+            configuration["location"] = location
+        
+        logger.info(f"Model configuration: {configuration}")
+        return [configuration]
+    
+    except Exception as e:
+        logger.error(f"Failed to configure agent {agent_name}: {e}")
+        print(
+            f"Error: Failed to configure LLM. "
+            f"Check your project ID, region, and permissions. Details: {e}"
+        )
+        raise
+
+
+# ============================================================================
+# Singleton Instance
+# ============================================================================
+
 _settings: HegemonSettings | None = None
 
 
@@ -270,7 +245,12 @@ def get_settings() -> HegemonSettings:
     
     if _settings is None:
         _settings = HegemonSettings()
-        _settings.validate_providers()
+        _settings.validate_api_keys()
+        
+        logger.info(
+            f"✅ HEGEMON Settings initialized "
+            f"(GCP Project: {_settings.gcp_project_id})"
+        )
     
     return _settings
 
@@ -289,3 +269,50 @@ def get_agent_config(
     }
     
     return config_map[agent_name]
+
+
+def get_api_key_for_provider(provider: str) -> str | None:
+    """
+    Get API key for specified provider.
+    
+    Returns None for Google provider if using Vertex AI.
+    """
+    settings = get_settings()
+    
+    if provider == "anthropic":
+        return settings.anthropic_api_key
+    elif provider == "google":
+        return settings.google_api_key  # None if using Vertex AI
+    elif provider == "openai":
+        return settings.openai_api_key
+    else:
+        raise ValueError(f"Unknown provider: {provider}")
+
+
+def get_basic_config_for_agent(
+    agent_name: Literal["Katalizator", "Sceptyk", "Gubernator", "Syntezator"]
+) -> list[dict]:
+    """Get basic_config_agent format for specified agent."""
+    settings = get_settings()
+    agent_config = get_agent_config(agent_name)
+    
+    # Get API key (None for Vertex AI)
+    api_key = get_api_key_for_provider(agent_config.provider)
+    
+    # For Google provider using Vertex AI, pass project_id and location
+    if agent_config.provider == "google" and agent_config.use_vertex_ai:
+        return basic_config_agent(
+            agent_name=agent_config.model,
+            api_type=agent_config.provider,
+            location=settings.gcp_location,
+            project_id=settings.gcp_project_id,
+            api_key=None,  # No API key for Vertex AI
+        )
+    else:
+        return basic_config_agent(
+            agent_name=agent_config.model,
+            api_type=agent_config.provider,
+            location=None,
+            project_id=None,
+            api_key=api_key,
+        )

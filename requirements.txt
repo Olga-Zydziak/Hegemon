@@ -2,13 +2,14 @@
 langgraph==0.6.8
 langchain-core==0.3.76
 pydantic==2.11.9
-pydantic-settings==2.6.1
-python-dotenv==1.0.1
 
 # Multi-Provider LLM Support
 langchain-anthropic==0.3.21
 langchain-google-genai==2.1.12
 langchain-openai==0.3.33
+
+# Google Cloud (Secret Manager ONLY)
+google-cloud-secret-manager==2.21.1
 
 # Utilities
 tenacity==9.0.0
