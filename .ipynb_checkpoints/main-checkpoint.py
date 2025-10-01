@@ -189,5 +189,62 @@ def main() -> None:
         sys.exit(1)
 
 
+    # Generate heatmaps for each agent
+    visualizer = HeatmapGenerator()
+    
+    logger.info("\n" + "=" * 80)
+    logger.info("📊 EXPLAINABILITY VISUALIZATIONS")
+    logger.info("=" * 80 + "\n")
+    
+    for contribution in final_state["contributions"]:
+        if contribution.explainability and contribution.explainability.semantic_fingerprint:
+            vector = contribution.explainability.semantic_fingerprint
+            
+            logger.info(f"\n{'=' * 80}")
+            logger.info(f"{contribution.agent_id} - Cycle {contribution.cycle}")
+            logger.info('=' * 80)
+            
+            heatmap = visualizer.generate_text_heatmap(vector, top_k=15)
+            print(heatmap)
+            
+            # Save heatmap to file
+            heatmap_file = output_dir / f"heatmap_{contribution.agent_id}_cycle{contribution.cycle}.txt"
+            with open(heatmap_file, "w", encoding="utf-8") as f:
+                f.write(heatmap)
+            logger.info(f"💾 Heatmap saved to: {heatmap_file}")
+    
+    # Generate comparison: Katalizator vs Sceptyk (last cycle)
+    kataliz_last = [c for c in final_state["contributions"] if c.agent_id == "Katalizator"][-1]
+    sceptyk_last = [c for c in final_state["contributions"] if c.agent_id == "Sceptyk"][-1]
+    
+    if (kataliz_last.explainability and sceptyk_last.explainability and
+        kataliz_last.explainability.semantic_fingerprint and 
+        sceptyk_last.explainability.semantic_fingerprint):
+        
+        logger.info("\n" + "=" * 80)
+        logger.info("🔄 COMPARISON: Katalizator vs Sceptyk")
+        logger.info("=" * 80 + "\n")
+        
+        comparison = visualizer.generate_comparison_text(
+            kataliz_last.explainability.semantic_fingerprint,
+            sceptyk_last.explainability.semantic_fingerprint,
+            label1="Katalizator (Thesis)",
+            label2="Sceptyk (Antithesis)",
+            top_k=10
+        )
+        print(comparison)
+        
+        comparison_file = output_dir / "comparison_katalizator_vs_sceptyk.txt"
+        with open(comparison_file, "w", encoding="utf-8") as f:
+            f.write(comparison)
+        logger.info(f"💾 Comparison saved to: {comparison_file}")
+    
+    logger.info("\n" + "=" * 80)
+    logger.info("✅ Hegemon completed successfully with Explainability!")
+    logger.info("=" * 80)
+        
+        
+        
+        
 if __name__ == "__main__":
     main()

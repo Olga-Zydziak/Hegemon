@@ -191,7 +191,63 @@ class HegemonSettings(BaseModel):
                 )
         
         logger.info("✅ All required authentication validated")
-
+    # ========================================================================
+    # EXPLAINABILITY SETTINGS (Layer 6)
+    # ========================================================================
+    
+    explainability_enabled: bool = Field(
+        default=False,
+        description="Master switch for explainability features"
+    )
+    
+    explainability_semantic_fingerprint: bool = Field(
+        default=True,
+        description="Enable Layer 6: Semantic Fingerprint (concept classification)"
+    )
+    
+    explainability_classifier_model: str = Field(
+        default="gemini-2.0-flash-exp",
+        description="LLM model for concept classification"
+    )
+    
+    explainability_cache_size: int = Field(
+        default=1000,
+        ge=100,
+        le=10000,
+        description="Max number of cached classification results (LRU eviction)"
+    )
+    
+    explainability_timeout_seconds: int = Field(
+        default=30,
+        ge=5,
+        le=120,
+        description="Timeout for single classification request"
+    )
+    
+    
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        env_prefix="HEGEMON_",
+        extra="ignore",
+    )
+    
+    @model_validator(mode="after")
+    def validate_explainability_config(self) -> HegemonSettings:
+        """
+        Validate explainability configuration.
+        
+        Complexity: O(1)
+        """
+        if self.explainability_enabled:
+            # Check API key available
+            if not self.google_api_key:
+                logger.warning(
+                    "Explainability enabled but no Google API key found. "
+                    "Classifier will fail."
+                )
+        
+        return self
 
 # ============================================================================
 # Basic Config Agent (from api_config.py)

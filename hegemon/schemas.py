@@ -429,3 +429,30 @@ class MissionInput(BaseModel):
             )
         
         return v.strip()
+    
+    
+# ============================================================================
+# EXPLAINABILITY INTEGRATION (Layer 6)
+# ============================================================================
+
+# Import at top of file (add to existing imports)
+from hegemon.explainability.schemas import ExplainabilityBundle
+
+# Modify AgentContribution class - add this field:
+class AgentContribution(BaseModel):
+    """
+    ... existing docstring ...
+    """
+    agent_id: Literal["Katalizator", "Sceptyk", "Gubernator", "Syntezator"]
+    content: str = Field(...)
+    type: Literal["Thesis", "Antithesis", "Evaluation", "FinalPlan"]
+    cycle: int = Field(...)
+    rationale: str = Field(...)
+    
+    # NEW: Explainability bundle (optional, backward compatible)
+    explainability: ExplainabilityBundle | None = Field(
+        default=None,
+        description="Optional explainability data (semantic fingerprint, etc.)"
+    )
+    
+    # ... rest of existing validators and methods ...

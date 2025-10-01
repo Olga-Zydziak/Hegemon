@@ -24,3 +24,6 @@ ruff==0.13.2
 
 # Type Stubs
 types-requests==2.32.0.20240914
+
+matplotlib==3.10.6
+networkx==3.5

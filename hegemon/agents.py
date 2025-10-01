@@ -30,6 +30,48 @@ from hegemon.schemas import (
 )
 
 logger = logging.getLogger(__name__)
+from hegemon.explainability import ExplainabilityCollector, ConceptClassifier
+from hegemon.config.settings import get_settings
+
+# Singleton collector instance
+_explainability_collector: ExplainabilityCollector | None = None
+
+def get_explainability_collector() -> ExplainabilityCollector | None:
+    """
+    Get or create singleton ExplainabilityCollector.
+    
+    Returns:
+        Collector instance or None if explainability disabled
+        
+    Complexity: O(1) after first call
+    """
+    global _explainability_collector
+    
+    settings = get_settings()
+    
+    if not settings.explainability_enabled:
+        return None
+    
+    if _explainability_collector is None:
+        # Initialize classifier
+        if not settings.google_api_key:
+            logger.error("Cannot initialize explainability: no Google API key")
+            return None
+            
+        classifier = ConceptClassifier(
+            api_key=settings.google_api_key,
+            model_name=settings.explainability_classifier_model,
+            cache_size=settings.explainability_cache_size,
+        )
+        
+        _explainability_collector = ExplainabilityCollector(
+            settings=settings,
+            classifier=classifier,
+        )
+        
+        logger.info("✅ Explainability collector initialized")
+    
+    return _explainability_collector
 
 
 # ============================================================================
@@ -168,6 +210,16 @@ def katalizator_node(state: DebateState) -> dict[str, Any]:
     
     logger.info(f"✅ KATALIZATOR: Thesis generated ({len(thesis_content)} chars)")
     
+    explainability_bundle = None
+    collector = get_explainability_collector()
+    if collector is not None:
+        explainability_bundle = collector.collect(
+            agent_id="Katalizator",
+            content=thesis_content,
+            cycle=cycle
+        )
+    
+    
     contribution = AgentContribution(
         agent_id="Katalizator",
         content=thesis_content,
@@ -232,6 +284,18 @@ def sceptyk_node(state: DebateState) -> dict[str, Any]:
     
     logger.info(f"✅ SCEPTYK: Antithesis generated ({len(antithesis_content)} chars)")
     
+    
+    
+    explainability_bundle = None
+    collector = get_explainability_collector()
+    if collector is not None:
+        explainability_bundle = collector.collect(
+            agent_id="Sceptyk",
+            content=antithesis_content,
+            cycle=cycle
+        )
+    
+    
     contribution = AgentContribution(
         agent_id="Sceptyk",
         content=antithesis_content,
@@ -285,6 +349,16 @@ def gubernator_node(state: DebateState) -> dict[str, Any]:
     evaluation: GovernorEvaluation = llm_with_structure.invoke(messages)
     
     logger.info(f"✅ GUBERNATOR: Consensus Score = {evaluation.consensus_score:.2f}")
+    
+    explainability_bundle = None
+    collector = get_explainability_collector()
+    if collector is not None:
+        explainability_bundle = collector.collect(
+            agent_id="Gubernator",
+            content=evaluation_content,
+            cycle=cycle
+        )
+    
     
     contribution = AgentContribution(
         agent_id="Gubernator",
@@ -347,6 +421,17 @@ def syntezator_node(state: DebateState) -> dict[str, Any]:
         f"({len(final_plan.required_agents)} agents, "
         f"{len(final_plan.workflow)} steps)"
     )
+    
+    
+    explainability_bundle = None
+    collector = get_explainability_collector()
+    if collector is not None:
+        explainability_bundle = collector.collect(
+            agent_id="Syntezator",
+            content=plan_content,
+            cycle=cycle
+        )
+    
     
     contribution = AgentContribution(
         agent_id="Syntezator",
