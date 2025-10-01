@@ -15,7 +15,8 @@ from pathlib import Path
 from typing import Literal
 
 from google.cloud import secretmanager
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 logger = logging.getLogger(__name__)
 
@@ -196,34 +197,50 @@ class HegemonSettings(BaseModel):
     # ========================================================================
     
     explainability_enabled: bool = Field(
-        default=False,
+        default=True,
         description="Master switch for explainability features"
     )
     
     explainability_semantic_fingerprint: bool = Field(
         default=True,
-        description="Enable Layer 6: Semantic Fingerprint (concept classification)"
+        description="Enable Layer 6: Semantic Fingerprint"
     )
     
     explainability_classifier_model: str = Field(
-        default="gemini-2.0-flash-exp",
-        description="LLM model for concept classification"
+        default="gemini-2.0-flash",  # ← Vertex AI model
+        description="Vertex AI model for concept classification"
     )
     
     explainability_cache_size: int = Field(
         default=1000,
         ge=100,
         le=10000,
-        description="Max number of cached classification results (LRU eviction)"
+        description="Max cached classifications"
     )
     
     explainability_timeout_seconds: int = Field(
         default=30,
         ge=5,
         le=120,
-        description="Timeout for single classification request"
+        description="Classification timeout"
     )
     
+    @model_validator(mode="after")
+    def validate_explainability_config(self) -> HegemonSettings:
+        """
+        Validate explainability configuration.
+        
+        Complexity: O(1)
+        """
+        if self.explainability_enabled:
+            # Check GCP credentials available
+            if not self.gcp_project_id or not self.gcp_location:
+                logger.warning(
+                    "Explainability enabled but GCP project_id or location missing. "
+                    "Vertex AI classifier will fail."
+                )
+        
+        return self
     
     model_config = SettingsConfigDict(
         env_file=".env",

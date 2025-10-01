@@ -1,8 +1,8 @@
 """
-Concept Classifier using LLM.
+Concept Classifier using LLM via Vertex AI.
 
 Classifies text into 100-dimensional semantic space via prompted LLM.
-Implements retry logic, caching, and graceful degradation.
+Uses Vertex AI (no API key required - uses Application Default Credentials).
 
 Complexity:
 - classify(): O(n) where n = text length (LLM call)
@@ -15,12 +15,11 @@ import hashlib
 import json
 import logging
 import time
-from functools import lru_cache
 from typing import Any
 
 from langchain_core.language_models import BaseChatModel
 from langchain_core.messages import HumanMessage, SystemMessage
-from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_google_vertexai import ChatVertexAI  # ← ZMIANA: Vertex AI zamiast Generative AI
 
 from hegemon.explainability.concepts import get_concept_dictionary
 from hegemon.explainability.exceptions import ClassificationError
@@ -29,21 +28,21 @@ from hegemon.explainability.schemas import ConceptVector
 logger = logging.getLogger(__name__)
 
 # Constants
-MAX_TEXT_LENGTH: int = 50_000  # Truncate very long texts
+MAX_TEXT_LENGTH: int = 50_000
 RETRY_ATTEMPTS: int = 3
 RETRY_DELAY_SECONDS: float = 2.0
-DEFAULT_TEMPERATURE: float = 0.0  # Deterministic for consistency
+DEFAULT_TEMPERATURE: float = 0.0
 
 
 class ConceptClassifier:
     """
-    LLM-based concept classifier.
+    LLM-based concept classifier using Vertex AI.
 
     Analyzes text and assigns activation scores (0.0-1.0) to 100 concepts.
-    Uses Gemini Flash for cost-efficiency.
+    Uses Gemini Flash via Vertex AI for cost-efficiency.
 
     Attributes:
-        llm: LangChain chat model
+        llm: LangChain chat model (Vertex AI)
         model_name: Identifier of LLM used
         cache: LRU cache for classification results
 
@@ -54,16 +53,18 @@ class ConceptClassifier:
 
     def __init__(
         self,
-        api_key: str,
+        project_id: str,
+        location: str,
         model_name: str = "gemini-2.0-flash-exp",
         temperature: float = DEFAULT_TEMPERATURE,
         cache_size: int = 1000,
     ) -> None:
         """
-        Initialize classifier.
+        Initialize classifier with Vertex AI.
 
         Args:
-            api_key: Google API key for Gemini
+            project_id: GCP project ID
+            location: GCP location (e.g., 'us-central1')
             model_name: Gemini model identifier
             temperature: LLM temperature (0.0 for deterministic)
             cache_size: Max number of cached classifications
@@ -71,10 +72,15 @@ class ConceptClassifier:
         Complexity: O(1)
         """
         self.model_name = model_name
-        self.llm: BaseChatModel = ChatGoogleGenerativeAI(
+        self.project_id = project_id
+        self.location = location
+        
+        # Initialize Vertex AI client (uses Application Default Credentials)
+        self.llm: BaseChatModel = ChatVertexAI(
             model=model_name,
+            project=project_id,
+            location=location,
             temperature=temperature,
-            google_api_key=api_key,
         )
 
         # Build prompt template (cached across classifications)
@@ -85,8 +91,8 @@ class ConceptClassifier:
         self._cache_size = cache_size
 
         logger.info(
-            f"✅ ConceptClassifier initialized: {model_name}, "
-            f"cache_size={cache_size}"
+            f"✅ ConceptClassifier initialized: Vertex AI {model_name} "
+            f"(project={project_id}, location={location}), cache_size={cache_size}"
         )
 
     def _build_system_prompt(self) -> str:
@@ -167,7 +173,7 @@ Example:
                 concept_scores=cached.concept_scores,
                 timestamp=cached.timestamp,
                 model_used=cached.model_used,
-                processing_time_ms=0,  # No processing time for cache hit
+                processing_time_ms=0,
                 cache_hit=True,
             )
 
@@ -182,7 +188,7 @@ Example:
                 # Create ConceptVector
                 vector = ConceptVector(
                     concept_scores=concept_scores,
-                    model_used=self.model_name,
+                    model_used=f"{self.model_name} (Vertex AI)",
                     processing_time_ms=processing_time_ms,
                     cache_hit=False,
                 )
@@ -212,7 +218,7 @@ Example:
 
     def _classify_with_llm(self, text: str) -> dict[str, float]:
         """
-        Perform actual LLM classification.
+        Perform actual LLM classification via Vertex AI.
 
         Args:
             text: Input text
@@ -231,14 +237,19 @@ Example:
             HumanMessage(content=f"TEXT TO ANALYZE:\n\n{text}"),
         ]
 
-        # Call LLM
+        # Call LLM via Vertex AI
         try:
             response = self.llm.invoke(messages)
             response_text = response.content
         except Exception as e:
             raise ClassificationError(
-                f"LLM invocation failed: {e}",
-                details={"model": self.model_name, "text_length": len(text)},
+                f"Vertex AI invocation failed: {e}",
+                details={
+                    "model": self.model_name,
+                    "project": self.project_id,
+                    "location": self.location,
+                    "text_length": len(text)
+                },
             ) from e
 
         # Parse JSON
@@ -348,7 +359,7 @@ Example:
         
         return ConceptVector(
             concept_scores={cid: 0.0 for cid in concept_ids},
-            model_used=self.model_name,
+            model_used=f"{self.model_name} (Vertex AI)",
             processing_time_ms=0,
             cache_hit=False,
         )

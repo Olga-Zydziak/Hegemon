@@ -34,11 +34,17 @@ from hegemon.explainability import ExplainabilityCollector, ConceptClassifier
 from hegemon.config.settings import get_settings
 
 # Singleton collector instance
+from hegemon.explainability import ExplainabilityCollector, ConceptClassifier
+
+# Singleton collector instance
 _explainability_collector: ExplainabilityCollector | None = None
+
 
 def get_explainability_collector() -> ExplainabilityCollector | None:
     """
     Get or create singleton ExplainabilityCollector.
+    
+    Uses Vertex AI (no API key required - uses Application Default Credentials).
     
     Returns:
         Collector instance or None if explainability disabled
@@ -53,23 +59,28 @@ def get_explainability_collector() -> ExplainabilityCollector | None:
         return None
     
     if _explainability_collector is None:
-        # Initialize classifier
-        if not settings.google_api_key:
-            logger.error("Cannot initialize explainability: no Google API key")
-            return None
+        # Initialize classifier with Vertex AI credentials
+        try:
+            classifier = ConceptClassifier(
+                project_id=settings.gcp_project_id,
+                location=settings.gcp_location,
+                model_name=settings.explainability_classifier_model,
+                cache_size=settings.explainability_cache_size,
+            )
             
-        classifier = ConceptClassifier(
-            api_key=settings.google_api_key,
-            model_name=settings.explainability_classifier_model,
-            cache_size=settings.explainability_cache_size,
-        )
-        
-        _explainability_collector = ExplainabilityCollector(
-            settings=settings,
-            classifier=classifier,
-        )
-        
-        logger.info("✅ Explainability collector initialized")
+            _explainability_collector = ExplainabilityCollector(
+                settings=settings,
+                classifier=classifier,
+            )
+            
+            logger.info(
+                f"✅ Explainability collector initialized: "
+                f"Vertex AI {settings.explainability_classifier_model} "
+                f"(project={settings.gcp_project_id}, location={settings.gcp_location})"
+            )
+        except Exception as e:
+            logger.error(f"❌ Failed to initialize explainability: {e}")
+            return None
     
     return _explainability_collector
 
@@ -321,21 +332,17 @@ def gubernator_node(state: DebateState) -> dict[str, Any]:
     user_prompt_template = get_user_prompt_template("Gubernator")
     
     contributions = state.get("contributions", [])
-    debate_parts = []
-    
-    for contrib in contributions:
-        debate_parts.append(
-            f"{'='*80}\n"
-            f"{contrib.agent_id} ({contrib.type}, Cycle {contrib.cycle}):\n"
-            f"{contrib.content}\n\n"
-            f"Rationale: {contrib.rationale}"
-        )
-    
-    debate_context = "\n\n".join(debate_parts)
+    debate_context = "\n\n".join(
+        [
+            f"[Cycle {c.cycle}] {c.agent_id} ({c.type}):\n{c.content}"
+            for c in contributions
+        ]
+    )
     
     user_prompt = user_prompt_template.format(
         mission=state["mission"],
-        debate_context=debate_context
+        debate_context=debate_context,
+        cycle=cycle
     )
     
     llm = get_llm_for_agent("Gubernator")
@@ -348,8 +355,23 @@ def gubernator_node(state: DebateState) -> dict[str, Any]:
     
     evaluation: GovernorEvaluation = llm_with_structure.invoke(messages)
     
-    logger.info(f"✅ GUBERNATOR: Consensus Score = {evaluation.consensus_score:.2f}")
+    # IMPORTANT: Define ALL variables BEFORE explainability collection
+    evaluation_content = (
+        f"{evaluation.evaluation_summary}\n\n"
+        f"Consensus Score: {evaluation.consensus_score:.2f}\n"
+        f"Rationale: {evaluation.rationale}"
+    )
     
+    rationale = (
+        f"Evaluated using {config.provider}/{config.model}. "
+        f"Consensus: {evaluation.consensus_score:.2f}"
+    )
+    
+    logger.info(
+        f"✅ GUBERNATOR: Consensus Score = {evaluation.consensus_score:.2f}"
+    )
+    
+    # NEW: Collect explainability (after all variables are defined)
     explainability_bundle = None
     collector = get_explainability_collector()
     if collector is not None:
@@ -359,18 +381,18 @@ def gubernator_node(state: DebateState) -> dict[str, Any]:
             cycle=cycle
         )
     
-    
     contribution = AgentContribution(
         agent_id="Gubernator",
-        content=evaluation.evaluation_summary,
+        content=evaluation_content,
         type="Evaluation",
         cycle=cycle,
-        rationale=evaluation.rationale,
+        rationale=rationale,  # Now this variable exists
+        explainability=explainability_bundle,
     )
     
     return {
-        "current_consensus_score": evaluation.consensus_score,
         "contributions": [contribution],
+        "current_consensus_score": evaluation.consensus_score,
     }
 
 
@@ -421,7 +443,14 @@ def syntezator_node(state: DebateState) -> dict[str, Any]:
         f"({len(final_plan.required_agents)} agents, "
         f"{len(final_plan.workflow)} steps)"
     )
-    
+    plan_content = (
+    f"Mission Overview: {final_plan.mission_overview}\n\n"
+    f"Required Agents ({len(final_plan.required_agents)}):\n"
+    + "\n".join([f"- {a.role}: {a.description}" for a in final_plan.required_agents])
+    + f"\n\nWorkflow ({len(final_plan.workflow)} steps):\n"
+    + "\n".join([f"{s.step_id}. {s.description}" for s in final_plan.workflow])
+    + f"\n\nRisk Analysis: {final_plan.risk_analysis}"
+    )
     
     explainability_bundle = None
     collector = get_explainability_collector()
@@ -435,12 +464,11 @@ def syntezator_node(state: DebateState) -> dict[str, Any]:
     
     contribution = AgentContribution(
         agent_id="Syntezator",
-        content=final_plan.mission_overview,
+        content=plan_content,  # ← ZMIANA: użyj plan_content
         type="FinalPlan",
         cycle=cycle,
-        rationale=(
-            f"Synthesized final plan using {config.provider}/{config.model}."
-        ),
+        rationale=rationale,
+        explainability=explainability_bundle,
     )
     
     return {
