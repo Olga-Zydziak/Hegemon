@@ -1,0 +1,72 @@
+======================================================================
+EPISTEMIC UNCERTAINTY PROFILE
+======================================================================
+
+Agent: Katalizator
+Cycle: 2
+Model: gemini-2.0-flash-exp (Vertex AI)
+Processing time: 4623ms
+
+----------------------------------------------------------------------
+SUMMARY STATISTICS
+----------------------------------------------------------------------
+
+Total claims: 13
+Aggregate confidence: 0.72
+
+Confidence distribution:
+  High (≥0.7):   9 claims
+  Medium (0.5-0.7): 3 claims
+  Low (<0.5):    1 claims
+
+Evidence basis distribution:
+  EvidenceBasis.DOMAIN_KNOWLEDGE: 4 (30.8%)
+  EvidenceBasis.REASONING: 3 (23.1%)
+  EvidenceBasis.FACTS: 6 (46.2%)
+
+----------------------------------------------------------------------
+CLAIMS (sorted by confidence, descending)
+----------------------------------------------------------------------
+
+1. [HIGH] Confidence: 0.90 | Basis: Facts
+   Phase one deploys an AI-powered intent classification and routing system integrated directly into Salesforce.
+
+2. [HIGH] Confidence: 0.90 | Basis: Facts
+   Phase one requires eight weeks and $180,000.
+
+3. [HIGH] Confidence: 0.90 | Basis: Facts
+   Phase two introduces an AI co-pilot system for human agents, providing real-time response suggestions, automatic case summarization, and proactive escalation recommendations, deployed over weeks nine through sixteen with $200,000 investment.
+
+4. [HIGH] Confidence: 0.90 | Basis: Facts
+   The final phase implements predictive issue prevention, using machine learning to identify customers likely to experience problems and proactively addressing them before tickets are generated, consuming the remaining $120,000 and final eight weeks.
+
+5. [HIGH] Confidence: 0.80 | Basis: Facts
+   The strategy centers on implementing a progressive three-phase approach over six months.
+
+6. [HIGH] Confidence: 0.80 | Basis: Facts
+   Phase one will process all incoming inquiries and automatically resolve the straightforward 45% comprising order status, shipping updates, and basic product information queries.
+
+7. [HIGH] Confidence: 0.70 | Basis: Domain_Knowledge
+   Successful AI automation in customer service requires abandoning the false choice between cost reduction and satisfaction improvement.
+
+8. [HIGH] Confidence: 0.70 | Basis: Domain_Knowledge
+   The critical leverage point lies in deploying AI to eliminate the cognitive burden of repetitive pattern recognition while preserving human judgment for nuanced situations.
+
+9. [HIGH] Confidence: 0.70 | Basis: Domain_Knowledge
+   The phased approach allows continuous refinement based on real performance data rather than theoretical projections.
+
+10. [MED]  Confidence: 0.60 | Basis: Reasoning
+   We should architect a phased intelligence amplification system that treats AI as a capability multiplier for human agents rather than a replacement mechanism.
+
+11. [MED]  Confidence: 0.60 | Basis: Domain_Knowledge
+   The Salesforce integration ensures seamless deployment without workflow disruption.
+
+12. [MED]  Confidence: 0.50 | Basis: Reasoning
+   By month six, we project handling 45% of inquiries through full automation and accelerating human agent resolution time by 35% through AI assistance, yielding a combined 32% cost reduction while maintaining current staffing levels for complex cases.
+
+13. [LOW]  Confidence: 0.40 | Basis: Reasoning
+   Customer satisfaction scores should increase by 8-12 points through faster response times and reduced wait periods.
+
+======================================================================
+Generated: 2025-10-02T13:07:26.261160
+======================================================================

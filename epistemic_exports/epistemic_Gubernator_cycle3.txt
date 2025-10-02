@@ -1,0 +1,62 @@
+======================================================================
+EPISTEMIC UNCERTAINTY PROFILE
+======================================================================
+
+Agent: Gubernator
+Cycle: 3
+Model: gemini-2.0-flash-exp (Vertex AI)
+Processing time: 4833ms
+
+----------------------------------------------------------------------
+SUMMARY STATISTICS
+----------------------------------------------------------------------
+
+Total claims: 10
+Aggregate confidence: 0.76
+
+Confidence distribution:
+  High (≥0.7):   8 claims
+  Medium (0.5-0.7): 2 claims
+  Low (<0.5):    0 claims
+
+Evidence basis distribution:
+  EvidenceBasis.FACTS: 3 (30.0%)
+  EvidenceBasis.REASONING: 7 (70.0%)
+
+----------------------------------------------------------------------
+CLAIMS (sorted by confidence, descending)
+----------------------------------------------------------------------
+
+1. [HIGH] Confidence: 0.90 | Basis: Facts
+   Both parties converge on phased implementation, intelligence amplification over replacement, Salesforce-native deployment, and the three-tier architecture.
+
+2. [HIGH] Confidence: 0.90 | Basis: Facts
+   The Thesis has progressively refined its proposal, moderating cost reduction claims from 40% to 32%, adjusting CSAT projections from 15 points to 6-10 points, and providing increasingly granular budget allocations ($150K/$200K/$150K).
+
+3. [HIGH] Confidence: 0.80 | Basis: Facts
+   The Antithesis has evolved from broad feasibility concerns to laser-focused critiques on specific execution risks: data readiness timelines, knowledge base curation effort, API integration complexity for transactional automation, change management costs, and the "containment trap" phenomenon in early-stage AI deployments.
+
+4. [HIGH] Confidence: 0.80 | Basis: Reasoning
+   Both parties now share a common understanding of the problem space and solution architecture.
+
+5. [HIGH] Confidence: 0.80 | Basis: Reasoning
+   Convergence (0.80) - both parties agree on phased approach, Salesforce integration, hybrid AI-human model, and the need for progressive capability building, with remaining disagreements limited to specific timeline feasibility and budget sufficiency
+
+6. [HIGH] Confidence: 0.75 | Basis: Reasoning
+   Quality (0.75) - arguments are evidence-based with concrete numbers, the Thesis provides detailed phase breakdowns, and the Antithesis offers sophisticated critiques on data readiness, API integration complexity, and change management costs
+
+7. [HIGH] Confidence: 0.70 | Basis: Reasoning
+   Disagreements narrowing to execution parameters, risk assessment, and timeline realism rather than fundamental strategy.
+
+8. [HIGH] Confidence: 0.70 | Basis: Reasoning
+   Readiness (0.70) - sufficient material exists for coherent synthesis that acknowledges both the strategic framework and critical risk mitigation requirements
+
+9. [MED]  Confidence: 0.65 | Basis: Reasoning
+   Completeness (0.65) - major strategic elements are well-defined, though implementation details around change management, pilot program structure, and ongoing operational costs need clarification
+
+10. [MED]  Confidence: 0.60 | Basis: Reasoning
+   The debate has reached a productive equilibrium where core strategy is aligned and remaining concerns can be addressed through synthesis rather than additional debate cycles.
+
+======================================================================
+Generated: 2025-10-02T13:09:58.894581
+======================================================================

@@ -14,7 +14,7 @@ from __future__ import annotations
 import hashlib
 from datetime import datetime
 from typing import Literal
-
+from enum import Enum
 from pydantic import BaseModel, Field, field_validator, model_validator
 
 
@@ -197,6 +197,255 @@ class ConceptVector(BaseModel):
 
         return dot_product / (magnitude_v1 * magnitude_v2)
 
+# ============================================================================
+# Layer 2: Epistemic Uncertainty
+# ============================================================================
+
+class EvidenceBasis(str, Enum):
+    """
+    Classification of evidence supporting a claim.
+    
+    Hierarchy from strongest to weakest:
+    - FACTS: Verifiable, objective data (metrics, dates, laws)
+    - DOMAIN_KNOWLEDGE: Established best practices, standards
+    - REASONING: Logical inference from premises
+    - HEURISTICS: Rules of thumb, educated guesses
+    - SPECULATION: Assumptions without strong basis
+    
+    Complexity: O(1) for enum operations
+    """
+    FACTS = "Facts"
+    DOMAIN_KNOWLEDGE = "Domain_Knowledge"
+    REASONING = "Reasoning"
+    HEURISTICS = "Heuristics"
+    SPECULATION = "Speculation"
+
+
+class EpistemicClaim(BaseModel):
+    """
+    A single claim with epistemic metadata.
+    
+    Represents one statement from agent output with uncertainty quantification.
+    
+    Attributes:
+        claim_text: The actual statement (1+ sentences)
+        confidence: Model's confidence in this claim [0.0, 1.0]
+        evidence_basis: Type of evidence supporting claim
+        sentence_indices: Which sentences in original text (0-indexed)
+    
+    Validation:
+        - claim_text: min 10 chars (substantial claim)
+        - confidence: strictly [0.0, 1.0]
+        - sentence_indices: non-empty list
+    
+    Complexity: O(1) for creation, O(n) for validation where n = len(claim_text)
+    """
+    
+    claim_text: str = Field(
+        ...,
+        min_length=10,
+        description="The claim statement (one or more sentences)"
+    )
+    
+    confidence: float = Field(
+        ...,
+        ge=0.0,
+        le=1.0,
+        description="Confidence score: 0.0 (no confidence) to 1.0 (certain)"
+    )
+    
+    evidence_basis: EvidenceBasis = Field(
+        ...,
+        description="Type of evidence supporting this claim"
+    )
+    
+    sentence_indices: list[int] = Field(
+        default_factory=list,
+        description="Sentence indices in original text (0-indexed)"
+    )
+    
+    @field_validator("confidence")
+    @classmethod
+    def validate_confidence_precision(cls, v: float) -> float:
+        """
+        Round confidence to 2 decimal places for consistency.
+        
+        Complexity: O(1)
+        """
+        return round(v, 2)
+    
+    def is_high_confidence(self, threshold: float = 0.7) -> bool:
+        """
+        Check if claim has high confidence.
+        
+        Args:
+            threshold: Minimum confidence for "high" (default 0.7)
+        
+        Returns:
+            True if confidence >= threshold
+        
+        Complexity: O(1)
+        """
+        return self.confidence >= threshold
+    
+    def is_low_confidence(self, threshold: float = 0.5) -> bool:
+        """
+        Check if claim has low confidence (needs verification).
+        
+        Args:
+            threshold: Maximum confidence for "low" (default 0.5)
+        
+        Returns:
+            True if confidence < threshold
+        
+        Complexity: O(1)
+        """
+        return self.confidence < threshold
+
+
+class EpistemicProfile(BaseModel):
+    """
+    Epistemic uncertainty profile for agent output.
+    
+    Contains all claims with their confidence scores and evidence bases.
+    Provides aggregate statistics for output quality assessment.
+    
+    Attributes:
+        claims: List of epistemic claims extracted from text
+        timestamp: When profile was created
+        model_used: LLM model used for extraction
+        processing_time_ms: Extraction latency
+        aggregate_confidence: Mean confidence across all claims
+    
+    Complexity:
+        - Creation: O(n) where n = len(claims)
+        - Statistics: O(1) (cached at creation)
+    """
+    
+    claims: list[EpistemicClaim] = Field(
+        default_factory=list,
+        description="List of claims with epistemic metadata"
+    )
+    
+    timestamp: datetime = Field(
+        default_factory=datetime.utcnow,
+        description="When this profile was generated"
+    )
+    
+    model_used: str = Field(
+        ...,
+        min_length=3,
+        description="Model used for claim extraction"
+    )
+    
+    processing_time_ms: int = Field(
+        ...,
+        ge=0,
+        description="Time taken to extract claims (milliseconds)"
+    )
+    
+    aggregate_confidence: float = Field(
+        default=0.0,
+        ge=0.0,
+        le=1.0,
+        description="Mean confidence across all claims"
+    )
+    
+    @model_validator(mode="after")
+    def compute_aggregate_confidence(self) -> "EpistemicProfile":
+        """
+        Compute aggregate confidence from claims.
+        
+        Complexity: O(n) where n = len(claims)
+        """
+        if self.claims:
+            total = sum(c.confidence for c in self.claims)
+            self.aggregate_confidence = round(total / len(self.claims), 2)
+        else:
+            self.aggregate_confidence = 0.0
+        
+        return self
+    
+    def get_high_confidence_claims(self, threshold: float = 0.7) -> list[EpistemicClaim]:
+        """
+        Get claims with high confidence.
+        
+        Args:
+            threshold: Minimum confidence
+        
+        Returns:
+            List of high-confidence claims
+        
+        Complexity: O(n) where n = len(claims)
+        """
+        return [c for c in self.claims if c.is_high_confidence(threshold)]
+    
+    def get_low_confidence_claims(self, threshold: float = 0.5) -> list[EpistemicClaim]:
+        """
+        Get claims needing verification.
+        
+        Args:
+            threshold: Maximum confidence for "low"
+        
+        Returns:
+            List of low-confidence claims
+        
+        Complexity: O(n) where n = len(claims)
+        """
+        return [c for c in self.claims if c.is_low_confidence(threshold)]
+    
+    def get_claims_by_basis(self, basis: EvidenceBasis) -> list[EpistemicClaim]:
+        """
+        Filter claims by evidence basis.
+        
+        Args:
+            basis: Evidence basis to filter by
+        
+        Returns:
+            Claims with specified evidence basis
+        
+        Complexity: O(n) where n = len(claims)
+        """
+        return [c for c in self.claims if c.evidence_basis == basis]
+    
+    def get_summary_stats(self) -> dict[str, Any]:
+        """
+        Get summary statistics for profile.
+        
+        Returns:
+            Dict with stats: total, high/med/low conf counts, basis distribution
+        
+        Complexity: O(n) where n = len(claims)
+        """
+        if not self.claims:
+            return {
+                "total_claims": 0,
+                "aggregate_confidence": 0.0,
+                "high_confidence_count": 0,
+                "medium_confidence_count": 0,
+                "low_confidence_count": 0,
+                "basis_distribution": {},
+            }
+        
+        high = len([c for c in self.claims if c.confidence >= 0.7])
+        medium = len([c for c in self.claims if 0.5 <= c.confidence < 0.7])
+        low = len([c for c in self.claims if c.confidence < 0.5])
+        
+        # Basis distribution
+        from collections import Counter
+        basis_counts = Counter(c.evidence_basis for c in self.claims)
+        
+        return {
+            "total_claims": len(self.claims),
+            "aggregate_confidence": self.aggregate_confidence,
+            "high_confidence_count": high,
+            "medium_confidence_count": medium,
+            "low_confidence_count": low,
+            "basis_distribution": dict(basis_counts),
+        }
+
+
+
 
 # ============================================================================
 # Explainability Bundle (Container for All Layers)
@@ -219,7 +468,20 @@ class ExplainabilityBundle(BaseModel):
     Complexity: O(1)
     """
 
-    semantic_fingerprint: ConceptVector | None = None
+    semantic_fingerprint: ConceptVector | None = Field(
+        default=None,
+        description="Layer 6: Semantic fingerprint (100D concept space)"
+    )
+    
+    epistemic_profile: EpistemicProfile | None = Field(
+        default=None,
+        description="Layer 2: Epistemic uncertainty (per-claim confidence)"
+    )
+    
+    
+    
+    
+    # semantic_fingerprint: ConceptVector | None = None
 
     # Placeholders for future layers (Phase 2+)
     # epistemic_claims: list[EpistemicClaim] | None = None

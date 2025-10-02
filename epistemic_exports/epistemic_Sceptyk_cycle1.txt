@@ -1,0 +1,59 @@
+======================================================================
+EPISTEMIC UNCERTAINTY PROFILE
+======================================================================
+
+Agent: Sceptyk
+Cycle: 1
+Model: gemini-2.0-flash-exp (Vertex AI)
+Processing time: 3589ms
+
+----------------------------------------------------------------------
+SUMMARY STATISTICS
+----------------------------------------------------------------------
+
+Total claims: 9
+Aggregate confidence: 0.63
+
+Confidence distribution:
+  High (≥0.7):   4 claims
+  Medium (0.5-0.7): 5 claims
+  Low (<0.5):    0 claims
+
+Evidence basis distribution:
+  EvidenceBasis.DOMAIN_KNOWLEDGE: 4 (44.4%)
+  EvidenceBasis.REASONING: 5 (55.6%)
+
+----------------------------------------------------------------------
+CLAIMS (sorted by confidence, descending)
+----------------------------------------------------------------------
+
+1. [HIGH] Confidence: 0.80 | Basis: Domain_Knowledge
+   The integration is framed as an $80,000 cost *elimination*, but fails to account for the substantial and recurring licensing and maintenance costs of a platform like Salesforce Einstein, which can easily exceed this figure.
+
+2. [HIGH] Confidence: 0.70 | Basis: Domain_Knowledge
+   Achieving a 40% cost reduction and a 15-point CSAT increase simultaneously within six months is a high-risk gamble.
+
+3. [HIGH] Confidence: 0.70 | Basis: Domain_Knowledge
+   The predictive service is not an off-the-shelf feature; it’s a complex data science project that requires significant investment in data cleaning, model development, and validation, which appears underfunded.
+
+4. [HIGH] Confidence: 0.70 | Basis: Reasoning
+   The cost of recruiting and training replacements for agents who are unwilling or unable to adapt to these new, more complex roles is an unbudgeted expense.
+
+5. [MED]  Confidence: 0.60 | Basis: Reasoning
+   A rushed deployment is likely to result in a poorly trained AI and a flawed escalation process, creating customer frustration that tanks satisfaction scores.
+
+6. [MED]  Confidence: 0.60 | Basis: Domain_Knowledge
+   The budget of $500,000 seems insufficient for a custom three-tier AI system, especially one requiring deep Salesforce integration and a predictive machine learning model (Tier 3).
+
+7. [MED]  Confidence: 0.60 | Basis: Reasoning
+   Redeploying nearly 50% of the customer service team risks significant employee churn and morale collapse.
+
+8. [MED]  Confidence: 0.50 | Basis: Reasoning
+   Assuming these redeployed agents can immediately become a revenue-generating outreach team without extensive, specialized training is a leap of faith.
+
+9. [MED]  Confidence: 0.50 | Basis: Reasoning
+   Focusing exclusively on perfecting Tiers 1 and 2 within the initial six-month timeframe would allow the team to stabilize the core automation and agent-assist tools, prove the ROI on a smaller scale, and manage the organizational change more carefully before attempting the highly speculative predictive service of Tier 3.
+
+======================================================================
+Generated: 2025-10-02T13:06:34.429429
+======================================================================

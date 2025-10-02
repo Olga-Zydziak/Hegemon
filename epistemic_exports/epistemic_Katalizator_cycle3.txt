@@ -1,0 +1,79 @@
+======================================================================
+EPISTEMIC UNCERTAINTY PROFILE
+======================================================================
+
+Agent: Katalizator
+Cycle: 3
+Model: gemini-2.0-flash-exp (Vertex AI)
+Processing time: 6198ms
+
+----------------------------------------------------------------------
+SUMMARY STATISTICS
+----------------------------------------------------------------------
+
+Total claims: 15
+Aggregate confidence: 0.61
+
+Confidence distribution:
+  High (≥0.7):   7 claims
+  Medium (0.5-0.7): 5 claims
+  Low (<0.5):    3 claims
+
+Evidence basis distribution:
+  EvidenceBasis.REASONING: 4 (26.7%)
+  EvidenceBasis.FACTS: 3 (20.0%)
+  EvidenceBasis.DOMAIN_KNOWLEDGE: 5 (33.3%)
+  EvidenceBasis.HEURISTICS: 3 (20.0%)
+
+----------------------------------------------------------------------
+CLAIMS (sorted by confidence, descending)
+----------------------------------------------------------------------
+
+1. [HIGH] Confidence: 0.80 | Basis: Facts
+   Phase one (months 1-2, $150K) establishes the foundation: deploy a Salesforce-native AI assistant that handles the 40% of inquiries requiring only information retrieval.
+
+2. [HIGH] Confidence: 0.80 | Basis: Facts
+   Phase two (months 3-4, $200K) introduces intelligent routing and agent augmentation.
+
+3. [HIGH] Confidence: 0.80 | Basis: Facts
+   Phase three (months 5-6, $150K) scales the system and optimizes performance.
+
+4. [HIGH] Confidence: 0.70 | Basis: Reasoning
+   The company's constraints—limited budget, tight timeline, existing Salesforce infrastructure—define an optimal path: progressive automation through intelligent triage rather than wholesale replacement.
+
+5. [HIGH] Confidence: 0.70 | Basis: Domain_Knowledge
+   Simultaneously, conversation analytics will be implemented on all customer interactions to build a training dataset and identify the next automation opportunities.
+
+6. [HIGH] Confidence: 0.70 | Basis: Reasoning
+   This hybrid model targets the 35% of interactions that benefit from human judgment but waste time on information gathering.
+
+7. [HIGH] Confidence: 0.70 | Basis: Domain_Knowledge
+   The phased implementation mitigates technical risk, allows for learning and adjustment, and builds internal confidence in AI capabilities.
+
+8. [MED]  Confidence: 0.60 | Basis: Domain_Knowledge
+   This uses existing Einstein capabilities enhanced with custom knowledge base integration, requiring minimal technical risk.
+
+9. [MED]  Confidence: 0.60 | Basis: Domain_Knowledge
+   The AI system will triage incoming requests, automatically resolving simple cases while routing complex issues to human agents with full context and suggested responses.
+
+10. [MED]  Confidence: 0.60 | Basis: Domain_Knowledge
+   AI capabilities will be expanded to handle the long tail of repetitive complex queries—refund processing, basic troubleshooting, account modifications—while continuously refining models based on accumulated interaction data.
+
+11. [MED]  Confidence: 0.50 | Basis: Reasoning
+   A three-phase system should be implemented over six months to systematically capture efficiency gains while building organizational capability.
+
+12. [MED]  Confidence: 0.50 | Basis: Reasoning
+   It positions the company for continued automation gains beyond the initial six months as models improve with accumulated data.
+
+13. [LOW]  Confidence: 0.40 | Basis: Heuristics
+   Expected outcome of phase one: 15% cost reduction from volume deflection, baseline CSAT maintenance.
+
+14. [LOW]  Confidence: 0.40 | Basis: Heuristics
+   Expected outcome of phase two: additional 12% cost reduction from improved agent productivity, 5-8 point CSAT improvement from faster, more consistent responses.
+
+15. [LOW]  Confidence: 0.40 | Basis: Heuristics
+   This approach delivers 32% total cost reduction ($480K annual savings) while improving CSAT by 6-10 points through faster resolution and 24/7 availability.
+
+======================================================================
+Generated: 2025-10-02T13:08:56.820049
+======================================================================

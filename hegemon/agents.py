@@ -35,6 +35,10 @@ from hegemon.config.settings import get_settings
 
 # Singleton collector instance
 from hegemon.explainability import ExplainabilityCollector, ConceptClassifier
+import langchain
+from langchain.cache import SQLiteCache
+langchain.llm_cache = SQLiteCache(database_path=".langchain_hegemon.db")
+
 
 # Singleton collector instance
 _explainability_collector: ExplainabilityCollector | None = None
@@ -44,7 +48,7 @@ def get_explainability_collector() -> ExplainabilityCollector | None:
     """
     Get or create singleton ExplainabilityCollector.
     
-    Uses Vertex AI (no API key required - uses Application Default Credentials).
+    Now includes Layer 2 (epistemic uncertainty) support.
     
     Returns:
         Collector instance or None if explainability disabled
@@ -59,8 +63,8 @@ def get_explainability_collector() -> ExplainabilityCollector | None:
         return None
     
     if _explainability_collector is None:
-        # Initialize classifier with Vertex AI credentials
         try:
+            # Initialize Layer 6 classifier
             classifier = ConceptClassifier(
                 project_id=settings.gcp_project_id,
                 location=settings.gcp_location,
@@ -68,18 +72,32 @@ def get_explainability_collector() -> ExplainabilityCollector | None:
                 cache_size=settings.explainability_cache_size,
             )
             
+            # Initialize Layer 2 claim extractor (if enabled)
+            claim_extractor = None
+            if settings.explainability_epistemic_uncertainty:
+                from hegemon.explainability.epistemic import ClaimExtractor
+                
+                claim_extractor = ClaimExtractor(
+                    project_id=settings.gcp_project_id,
+                    location=settings.gcp_location,
+                    model_name=settings.explainability_epistemic_extractor_model,
+                )
+                logger.info("Layer 2 (Epistemic Uncertainty) enabled")
+            
+            # Create collector with both layers
             _explainability_collector = ExplainabilityCollector(
                 settings=settings,
                 classifier=classifier,
+                claim_extractor=claim_extractor,
             )
             
             logger.info(
-                f"✅ Explainability collector initialized: "
-                f"Vertex AI {settings.explainability_classifier_model} "
-                f"(project={settings.gcp_project_id}, location={settings.gcp_location})"
+                "Explainability collector initialized: "
+                f"L6 ({settings.explainability_classifier_model}), "
+                f"L2 ({'enabled' if claim_extractor else 'disabled'})"
             )
         except Exception as e:
-            logger.error(f"❌ Failed to initialize explainability: {e}")
+            logger.error(f"Failed to initialize explainability: {e}")
             return None
     
     return _explainability_collector
@@ -237,6 +255,7 @@ def katalizator_node(state: DebateState) -> dict[str, Any]:
         type="Thesis",
         cycle=cycle,
         rationale=rationale,
+        explainability=explainability_bundle
     )
     
     return {"contributions": [contribution]}
@@ -313,6 +332,7 @@ def sceptyk_node(state: DebateState) -> dict[str, Any]:
         type="Antithesis",
         cycle=cycle,
         rationale=rationale,
+        explainability=explainability_bundle
     )
     
     return {"contributions": [contribution]}
@@ -451,6 +471,13 @@ def syntezator_node(state: DebateState) -> dict[str, Any]:
     + "\n".join([f"{s.step_id}. {s.description}" for s in final_plan.workflow])
     + f"\n\nRisk Analysis: {final_plan.risk_analysis}"
     )
+    
+    rationale = (
+    f"Generated final plan using {config.provider}/{config.model}. "
+    f"Agents: {len(final_plan.required_agents)}, "
+    f"Steps: {len(final_plan.workflow)}"
+    )
+    
     
     explainability_bundle = None
     collector = get_explainability_collector()

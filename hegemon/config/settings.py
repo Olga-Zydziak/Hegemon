@@ -265,6 +265,17 @@ class HegemonSettings(BaseModel):
                 )
         
         return self
+    
+    # Layer 2: Epistemic Uncertainty
+    explainability_epistemic_uncertainty: bool = Field(
+        default=True,
+        description="Enable Layer 2: Epistemic Uncertainty (claim confidence)"
+    )
+    
+    explainability_epistemic_extractor_model: str = Field(
+        default="gemini-2.0-flash-exp",
+        description="Vertex AI model for claim extraction"
+    )
 
 # ============================================================================
 # Basic Config Agent (from api_config.py)

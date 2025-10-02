@@ -176,3 +176,356 @@ class HeatmapGenerator:
         lines.append("=" * 80)
 
         return "\n".join(lines)
+    
+# ============================================================================
+# Layer 2: Epistemic Uncertainty Visualization
+# ============================================================================
+
+def export_epistemic_profile_json(
+    profile: EpistemicProfile,
+    agent_id: str,
+    cycle: int,
+    output_dir: str = ".",
+) -> str:
+    """
+    Export epistemic profile to JSON file.
+    
+    Args:
+        profile: EpistemicProfile to export
+        agent_id: Agent identifier
+        cycle: Debate cycle
+        output_dir: Output directory path
+    
+    Returns:
+        Path to exported file
+    
+    Complexity: O(n) where n = len(profile.claims)
+    """
+    import json
+    from pathlib import Path
+    
+    output_path = Path(output_dir)
+    output_path.mkdir(parents=True, exist_ok=True)
+    
+    filename = f"epistemic_{agent_id}_cycle{cycle}.json"
+    filepath = output_path / filename
+    
+    # Prepare data
+    data = {
+        "agent_id": agent_id,
+        "cycle": cycle,
+        "timestamp": profile.timestamp.isoformat(),
+        "model_used": profile.model_used,
+        "processing_time_ms": profile.processing_time_ms,
+        "aggregate_confidence": profile.aggregate_confidence,
+        "summary_stats": profile.get_summary_stats(),
+        "claims": [
+            {
+                "claim_text": claim.claim_text,
+                "confidence": claim.confidence,
+                "evidence_basis": claim.evidence_basis.value,
+                "sentence_indices": claim.sentence_indices,
+            }
+            for claim in profile.claims
+        ],
+    }
+    
+    with open(filepath, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2, ensure_ascii=False)
+    
+    logger.info(f"Epistemic profile exported to {filepath}")
+    return str(filepath)
+
+
+def export_epistemic_profile_text(
+    profile: EpistemicProfile,
+    agent_id: str,
+    cycle: int,
+    output_dir: str = ".",
+) -> str:
+    """
+    Export epistemic profile to human-readable text file.
+    
+    Args:
+        profile: EpistemicProfile to export
+        agent_id: Agent identifier
+        cycle: Debate cycle
+        output_dir: Output directory path
+    
+    Returns:
+        Path to exported file
+    
+    Complexity: O(n) where n = len(profile.claims)
+    """
+    from pathlib import Path
+    
+    output_path = Path(output_dir)
+    output_path.mkdir(parents=True, exist_ok=True)
+    
+    filename = f"epistemic_{agent_id}_cycle{cycle}.txt"
+    filepath = output_path / filename
+    
+    stats = profile.get_summary_stats()
+    
+    # Build text content
+    lines = [
+        "=" * 70,
+        "EPISTEMIC UNCERTAINTY PROFILE",
+        "=" * 70,
+        "",
+        f"Agent: {agent_id}",
+        f"Cycle: {cycle}",
+        f"Model: {profile.model_used}",
+        f"Processing time: {profile.processing_time_ms}ms",
+        "",
+        "-" * 70,
+        "SUMMARY STATISTICS",
+        "-" * 70,
+        "",
+        f"Total claims: {stats['total_claims']}",
+        f"Aggregate confidence: {stats['aggregate_confidence']:.2f}",
+        "",
+        f"Confidence distribution:",
+        f"  High (≥0.7):   {stats['high_confidence_count']} claims",
+        f"  Medium (0.5-0.7): {stats['medium_confidence_count']} claims",
+        f"  Low (<0.5):    {stats['low_confidence_count']} claims",
+        "",
+        f"Evidence basis distribution:",
+    ]
+    
+    for basis, count in stats['basis_distribution'].items():
+        pct = (count / stats['total_claims'] * 100) if stats['total_claims'] > 0 else 0
+        lines.append(f"  {basis}: {count} ({pct:.1f}%)")
+    
+    lines.extend([
+        "",
+        "-" * 70,
+        "CLAIMS (sorted by confidence, descending)",
+        "-" * 70,
+        "",
+    ])
+    
+    # Sort claims by confidence
+    sorted_claims = sorted(profile.claims, key=lambda c: c.confidence, reverse=True)
+    
+    for i, claim in enumerate(sorted_claims, 1):
+        # Confidence emoji
+        if claim.confidence >= 0.7:
+            conf_emoji = "[HIGH]"
+        elif claim.confidence >= 0.5:
+            conf_emoji = "[MED] "
+        else:
+            conf_emoji = "[LOW] "
+        
+        lines.extend([
+            f"{i}. {conf_emoji} Confidence: {claim.confidence:.2f} | Basis: {claim.evidence_basis.value}",
+            f"   {claim.claim_text}",
+            "",
+        ])
+    
+    lines.extend([
+        "=" * 70,
+        f"Generated: {profile.timestamp.isoformat()}",
+        "=" * 70,
+    ])
+    
+    with open(filepath, "w", encoding="utf-8") as f:
+        f.write("\n".join(lines))
+    
+    logger.info(f"Epistemic profile exported to {filepath}")
+    return str(filepath)
+
+
+def export_all_epistemic_profiles(
+    contributions: list[AgentContribution],
+    output_dir: str = "epistemic_exports",
+    format: str = "both",  # "json", "text", or "both"
+) -> dict[str, list[str]]:
+    """
+    Export all epistemic profiles from debate contributions.
+    
+    Args:
+        contributions: List of agent contributions
+        output_dir: Output directory
+        format: Export format ("json", "text", or "both")
+    
+    Returns:
+        Dict with exported file paths by format
+    
+    Complexity: O(n*m) where n = len(contributions), m = avg claims per profile
+    """
+    from pathlib import Path
+    
+    output_path = Path(output_dir)
+    output_path.mkdir(parents=True, exist_ok=True)
+    
+    exported = {
+        "json": [],
+        "text": [],
+    }
+    
+    for contrib in contributions:
+        if not contrib.explainability or not contrib.explainability.epistemic_profile:
+            logger.debug(
+                f"Skipping {contrib.agent_id} Cycle {contrib.cycle} (no epistemic data)"
+            )
+            continue
+        
+        profile = contrib.explainability.epistemic_profile
+        
+        if format in ("json", "both"):
+            json_path = export_epistemic_profile_json(
+                profile=profile,
+                agent_id=contrib.agent_id,
+                cycle=contrib.cycle,
+                output_dir=output_dir,
+            )
+            exported["json"].append(json_path)
+        
+        if format in ("text", "both"):
+            text_path = export_epistemic_profile_text(
+                profile=profile,
+                agent_id=contrib.agent_id,
+                cycle=contrib.cycle,
+                output_dir=output_dir,
+            )
+            exported["text"].append(text_path)
+    
+    logger.info(
+        f"Exported {len(exported['json'])} JSON, {len(exported['text'])} text files"
+    )
+    
+    return exported
+
+
+def create_epistemic_comparison_report(
+    contributions: list[AgentContribution],
+    output_path: str = "epistemic_comparison.md",
+) -> str:
+    """
+    Create markdown report comparing epistemic profiles across agents/cycles.
+    
+    Args:
+        contributions: List of agent contributions
+        output_path: Output file path
+    
+    Returns:
+        Path to generated report
+    
+    Complexity: O(n*m) where n = len(contributions), m = avg claims
+    """
+    from pathlib import Path
+    
+    lines = [
+        "# Epistemic Uncertainty Analysis",
+        "",
+        "Comparison of claim confidence across agents and debate cycles.",
+        "",
+        "## Summary by Agent",
+        "",
+    ]
+    
+    # Group by agent
+    from collections import defaultdict
+    by_agent = defaultdict(list)
+    
+    for contrib in contributions:
+        if contrib.explainability and contrib.explainability.epistemic_profile:
+            by_agent[contrib.agent_id].append(
+                (contrib.cycle, contrib.explainability.epistemic_profile)
+            )
+    
+    # Agent-level summary
+    for agent_id in sorted(by_agent.keys()):
+        profiles = by_agent[agent_id]
+        
+        lines.append(f"### {agent_id}")
+        lines.append("")
+        lines.append("| Cycle | Claims | Avg Conf | High | Med | Low |")
+        lines.append("|-------|--------|----------|------|-----|-----|")
+        
+        for cycle, profile in sorted(profiles):
+            stats = profile.get_summary_stats()
+            lines.append(
+                f"| {cycle} | {stats['total_claims']} | "
+                f"{stats['aggregate_confidence']:.2f} | "
+                f"{stats['high_confidence_count']} | "
+                f"{stats['medium_confidence_count']} | "
+                f"{stats['low_confidence_count']} |"
+            )
+        
+        lines.append("")
+    
+    # Cycle-level comparison
+    lines.extend([
+        "## Summary by Cycle",
+        "",
+    ])
+    
+    # Group by cycle
+    by_cycle = defaultdict(list)
+    for contrib in contributions:
+        if contrib.explainability and contrib.explainability.epistemic_profile:
+            by_cycle[contrib.cycle].append(
+                (contrib.agent_id, contrib.explainability.epistemic_profile)
+            )
+    
+    for cycle in sorted(by_cycle.keys()):
+        agents = by_cycle[cycle]
+        
+        lines.append(f"### Cycle {cycle}")
+        lines.append("")
+        lines.append("| Agent | Claims | Avg Conf | Evidence Basis |")
+        lines.append("|-------|--------|----------|----------------|")
+        
+        for agent_id, profile in sorted(agents):
+            stats = profile.get_summary_stats()
+            basis_summary = ", ".join(
+                f"{k}({v})" for k, v in sorted(stats['basis_distribution'].items())
+            )
+            lines.append(
+                f"| {agent_id} | {stats['total_claims']} | "
+                f"{stats['aggregate_confidence']:.2f} | {basis_summary} |"
+            )
+        
+        lines.append("")
+    
+    # Low confidence warnings
+    lines.extend([
+        "## Low Confidence Claims (Risk Flags)",
+        "",
+        "Claims with confidence < 0.5 requiring verification:",
+        "",
+    ])
+    
+    low_conf_found = False
+    for contrib in contributions:
+        if not contrib.explainability or not contrib.explainability.epistemic_profile:
+            continue
+        
+        profile = contrib.explainability.epistemic_profile
+        low_claims = profile.get_low_confidence_claims(threshold=0.5)
+        
+        if low_claims:
+            low_conf_found = True
+            lines.append(f"### {contrib.agent_id} (Cycle {contrib.cycle})")
+            lines.append("")
+            
+            for claim in low_claims:
+                lines.append(
+                    f"- **[{claim.confidence:.2f}]** {claim.evidence_basis.value}: "
+                    f"{claim.claim_text[:150]}{'...' if len(claim.claim_text) > 150 else ''}"
+                )
+            
+            lines.append("")
+    
+    if not low_conf_found:
+        lines.append("*No low confidence claims found.*")
+        lines.append("")
+    
+    # Write file
+    with open(output_path, "w", encoding="utf-8") as f:
+        f.write("\n".join(lines))
+    
+    logger.info(f"Epistemic comparison report created: {output_path}")
+    return output_path

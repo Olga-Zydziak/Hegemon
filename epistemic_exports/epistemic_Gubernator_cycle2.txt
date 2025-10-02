@@ -1,0 +1,62 @@
+======================================================================
+EPISTEMIC UNCERTAINTY PROFILE
+======================================================================
+
+Agent: Gubernator
+Cycle: 2
+Model: gemini-2.0-flash-exp (Vertex AI)
+Processing time: 3696ms
+
+----------------------------------------------------------------------
+SUMMARY STATISTICS
+----------------------------------------------------------------------
+
+Total claims: 10
+Aggregate confidence: 0.69
+
+Confidence distribution:
+  High (≥0.7):   7 claims
+  Medium (0.5-0.7): 3 claims
+  Low (<0.5):    0 claims
+
+Evidence basis distribution:
+  EvidenceBasis.FACTS: 1 (10.0%)
+  EvidenceBasis.REASONING: 9 (90.0%)
+
+----------------------------------------------------------------------
+CLAIMS (sorted by confidence, descending)
+----------------------------------------------------------------------
+
+1. [HIGH] Confidence: 0.90 | Basis: Facts
+   The Thesis has adapted by moderating its claims (from 40% to 32% cost reduction, from 15-point to 8-12 point CSAT improvement) and providing more detailed budget breakdowns ($180K, $200K, $120K for each phase).
+
+2. [HIGH] Confidence: 0.80 | Basis: Reasoning
+   The Antithesis maintains rigorous scrutiny, now focusing on the "long tail" problem of seemingly simple queries that contain hidden complexity, and questioning the eight-week timeline for 45% automation.
+
+3. [HIGH] Confidence: 0.70 | Basis: Reasoning
+   The strategic framing has shifted from "replacement" to "intelligence amplification," directly addressing the Antithesis's concerns about human capital risks.
+
+4. [HIGH] Confidence: 0.70 | Basis: Reasoning
+   Both parties have converged on the phased approach and the value of AI-human collaboration, but continue to diverge on execution feasibility and timeline realism.
+
+5. [HIGH] Confidence: 0.70 | Basis: Reasoning
+   Both sides now agree on phased implementation, intelligence amplification over replacement, and the three-tier architecture.
+
+6. [HIGH] Confidence: 0.70 | Basis: Reasoning
+   The Thesis has responded to previous critiques with concrete budget allocations and more realistic projections.
+
+7. [HIGH] Confidence: 0.70 | Basis: Reasoning
+   The Antithesis provides sophisticated critique about the "long tail" problem in automation.
+
+8. [MED]  Confidence: 0.60 | Basis: Reasoning
+   The Antithesis's response appears incomplete, suggesting the debate was cut off mid-argument.
+
+9. [MED]  Confidence: 0.60 | Basis: Reasoning
+   Key implementation details are emerging, but critical gaps remain around change management specifics, fallback strategies, and detailed risk mitigation.
+
+10. [MED]  Confidence: 0.50 | Basis: Reasoning
+   The debate would benefit from one more complete round to fully address the timeline feasibility concerns and the "long tail" automation challenge raised by the Antithesis.
+
+======================================================================
+Generated: 2025-10-02T13:08:25.930153
+======================================================================

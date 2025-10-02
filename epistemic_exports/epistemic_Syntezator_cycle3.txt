@@ -1,0 +1,78 @@
+======================================================================
+EPISTEMIC UNCERTAINTY PROFILE
+======================================================================
+
+Agent: Syntezator
+Cycle: 3
+Model: gemini-2.0-flash-exp (Vertex AI)
+Processing time: 4922ms
+
+----------------------------------------------------------------------
+SUMMARY STATISTICS
+----------------------------------------------------------------------
+
+Total claims: 15
+Aggregate confidence: 0.77
+
+Confidence distribution:
+  High (≥0.7):   14 claims
+  Medium (0.5-0.7): 1 claims
+  Low (<0.5):    0 claims
+
+Evidence basis distribution:
+  EvidenceBasis.FACTS: 7 (46.7%)
+  EvidenceBasis.DOMAIN_KNOWLEDGE: 1 (6.7%)
+  EvidenceBasis.REASONING: 7 (46.7%)
+
+----------------------------------------------------------------------
+CLAIMS (sorted by confidence, descending)
+----------------------------------------------------------------------
+
+1. [HIGH] Confidence: 0.90 | Basis: Facts
+   The mission is to deploy a risk-mitigated three-phase AI customer service system over 6 months.
+
+2. [HIGH] Confidence: 0.90 | Basis: Facts
+   Phase 1 (Foundation & pilot) will occur in months 1-3.
+
+3. [HIGH] Confidence: 0.90 | Basis: Facts
+   Phase 2 (Hybrid AI-human model) will occur in months 3-5.
+
+4. [HIGH] Confidence: 0.90 | Basis: Facts
+   Phase 3 (Scaled deployment with continuous optimization) will occur in months 5-6.
+
+5. [HIGH] Confidence: 0.90 | Basis: Facts
+   The budget includes 15% contingency for unforeseen integration challenges.
+
+6. [HIGH] Confidence: 0.80 | Basis: Facts
+   The project targets a 28% cost reduction and 5-8 point CSAT improvement.
+
+7. [HIGH] Confidence: 0.80 | Basis: Facts
+   The existing knowledge base requires 3-4 weeks of cleaning.
+
+8. [HIGH] Confidence: 0.70 | Basis: Reasoning
+   A key risk is data readiness delay with a 40% probability.
+
+9. [HIGH] Confidence: 0.70 | Basis: Reasoning
+   A mitigation for data readiness delay is to start the data audit immediately and allocate $50K contingency for external data contractors.
+
+10. [HIGH] Confidence: 0.70 | Basis: Reasoning
+   There is a 30% probability of a CSAT drop during the transition.
+
+11. [HIGH] Confidence: 0.70 | Basis: Reasoning
+   A mitigation for CSAT drop is to maintain 100% human fallback for the first 8 weeks and implement one-click escalation.
+
+12. [HIGH] Confidence: 0.70 | Basis: Reasoning
+   There is a 25% probability of integration complexity with legacy systems.
+
+13. [HIGH] Confidence: 0.70 | Basis: Reasoning
+   A mitigation for integration complexity is to build an API abstraction layer and conduct a security audit in week 1.
+
+14. [HIGH] Confidence: 0.70 | Basis: Reasoning
+   There is a 35% probability of agent resistance to role change.
+
+15. [MED]  Confidence: 0.60 | Basis: Domain_Knowledge
+   The strategy integrates Thesis ambition (full automation potential) with Antithesis caution (data readiness, integration complexity).
+
+======================================================================
+Generated: 2025-10-02T13:10:42.342207
+======================================================================

@@ -1,0 +1,72 @@
+======================================================================
+EPISTEMIC UNCERTAINTY PROFILE
+======================================================================
+
+Agent: Katalizator
+Cycle: 1
+Model: gemini-2.0-flash-exp (Vertex AI)
+Processing time: 5537ms
+
+----------------------------------------------------------------------
+SUMMARY STATISTICS
+----------------------------------------------------------------------
+
+Total claims: 13
+Aggregate confidence: 0.78
+
+Confidence distribution:
+  High (≥0.7):   11 claims
+  Medium (0.5-0.7): 2 claims
+  Low (<0.5):    0 claims
+
+Evidence basis distribution:
+  EvidenceBasis.DOMAIN_KNOWLEDGE: 3 (23.1%)
+  EvidenceBasis.FACTS: 8 (61.5%)
+  EvidenceBasis.REASONING: 2 (15.4%)
+
+----------------------------------------------------------------------
+CLAIMS (sorted by confidence, descending)
+----------------------------------------------------------------------
+
+1. [HIGH] Confidence: 0.90 | Basis: Facts
+   A three-tier AI architecture will be implemented to progressively escalate complexity.
+
+2. [HIGH] Confidence: 0.90 | Basis: Facts
+   The foundation involves deploying an advanced conversational AI system handling tier-one inquiries, which currently consume 8,000 monthly tickets.
+
+3. [HIGH] Confidence: 0.90 | Basis: Facts
+   AI-assisted human agents will receive real-time suggestions, automated data retrieval, and draft responses generated from historical resolution patterns.
+
+4. [HIGH] Confidence: 0.90 | Basis: Facts
+   12 of 25 customer service representatives will be redeployed to proactive outreach and complex case management.
+
+5. [HIGH] Confidence: 0.90 | Basis: Facts
+   Implementation proceeds in three phases over six months.
+
+6. [HIGH] Confidence: 0.90 | Basis: Facts
+   The $500,000 budget target will be achieved by allocating $300,000 to platform licensing and customization, $150,000 to integration and training, and reserving $50,000 for contingency adjustments.
+
+7. [HIGH] Confidence: 0.80 | Basis: Facts
+   This system will integrate directly with Salesforce using their Einstein platform, ensuring seamless data flow and eliminating the $80,000 annual cost of maintaining separate systems.
+
+8. [HIGH] Confidence: 0.80 | Basis: Facts
+   Analysis of returns data suggests 40% of service contacts are preventable through earlier intervention.
+
+9. [HIGH] Confidence: 0.70 | Basis: Domain_Knowledge
+   Customer service automation succeeds not by replacing human agents entirely, but by creating an intelligent triage system that handles the predictable 70% while freeing premium human attention for the complex 30%.
+
+10. [HIGH] Confidence: 0.70 | Basis: Domain_Knowledge
+   Intelligent routing will analyze sentiment and complexity in real-time, automatically escalating frustrated customers or nuanced issues to human agents within 30 seconds.
+
+11. [HIGH] Confidence: 0.70 | Basis: Domain_Knowledge
+   Predictive service will identify at-risk orders and proactively resolve issues before customers contact us.
+
+12. [MED]  Confidence: 0.60 | Basis: Reasoning
+   This hybrid approach will reduce average handle time from 8 minutes to 5 minutes while maintaining the empathy and judgment that complex situations demand.
+
+13. [MED]  Confidence: 0.50 | Basis: Reasoning
+   The implementation targets a 40% cost reduction while improving satisfaction scores by 15 points through faster resolution times.
+
+======================================================================
+Generated: 2025-10-02T13:05:58.075524
+======================================================================
