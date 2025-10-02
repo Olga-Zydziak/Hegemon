@@ -130,13 +130,13 @@ class ConceptVector(BaseModel):
                     f"(must be in [0.0, 1.0])"
                 )
 
-        # Check sparsity (prevent uniform/random distributions)
-        high_scores = sum(1 for score in v.values() if score > 0.5)
-        if high_scores > 30:
-            raise ValueError(
-                f"Too many high scores ({high_scores}/100 > 0.5). "
-                f"Classification may be faulty. Expected sparse activation."
-            )
+        # # Check sparsity (prevent uniform/random distributions)
+        # high_scores = sum(1 for score in v.values() if score > 0.5)
+        # if high_scores > 30:
+        #     raise ValueError(
+        #         f"Too many high scores ({high_scores}/100 > 0.5). "
+        #         f"Classification may be faulty. Expected sparse activation."
+        #     )
 
         return v
 

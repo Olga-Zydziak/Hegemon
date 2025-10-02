@@ -114,12 +114,19 @@ SCORING RUBRIC:
 - 0.6-0.8: Concept is strongly present (dominant theme)
 - 0.8-1.0: Concept is extremely present (central to entire text)
 
-CRITICAL INSTRUCTIONS:
-1. Base scores on ACTUAL TEXT CONTENT, not assumptions about the topic
-2. Most concepts should be 0.0-0.3 (sparse activation is normal and expected)
-3. Only 5-15 concepts should exceed 0.5 per text
-4. Be conservative: err on the side of lower scores
-5. High scores (>0.7) require strong, repeated evidence in text
+CRITICAL INSTRUCTIONS (FOLLOW STRICTLY):
+1. Base scores ONLY on ACTUAL TEXT CONTENT, not assumptions
+2. SPARSE ACTIVATION IS REQUIRED: 70-80 concepts MUST be 0.0-0.3
+3. ONLY 10-20 concepts should exceed 0.5 (not more!)
+4. ONLY 3-7 concepts should exceed 0.7
+5. ONLY 0-2 concepts should be 0.8 or higher
+6. Be VERY conservative: when in doubt, score LOWER
+7. High scores (>0.7) require EXPLICIT, REPEATED evidence in text
+8. If a concept is merely mentioned once, score 0.2-0.4 MAX
+9. If a concept is a major theme appearing 3+ times, score 0.5-0.7
+10. Reserve 0.8+ for concepts that are THE CENTRAL focus of entire text
+
+REMEMBER: The goal is DISCRIMINATIVE scoring. If everything is high, nothing is meaningful.
 
 """
         prompt += concept_dict.to_prompt_section()
