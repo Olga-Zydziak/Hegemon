@@ -1,0 +1,66 @@
+======================================================================
+EPISTEMIC UNCERTAINTY PROFILE
+======================================================================
+
+Agent: Gubernator
+Cycle: 4
+Model: gemini-2.0-flash-exp (Vertex AI)
+Processing time: 1ms
+
+----------------------------------------------------------------------
+SUMMARY STATISTICS
+----------------------------------------------------------------------
+
+Total claims: 11
+Aggregate confidence: 0.75
+
+Confidence distribution:
+  High (≥0.7):   9 claims
+  Medium (0.5-0.7): 2 claims
+  Low (<0.5):    0 claims
+
+Evidence basis distribution:
+  EvidenceBasis.FACTS: 3 (27.3%)
+  EvidenceBasis.DOMAIN_KNOWLEDGE: 2 (18.2%)
+  EvidenceBasis.REASONING: 6 (54.5%)
+
+----------------------------------------------------------------------
+CLAIMS (sorted by confidence, descending)
+----------------------------------------------------------------------
+
+1. [HIGH] Confidence: 0.90 | Basis: Facts
+   Katalizator przedstawił podejście "production-first" z architekturą ewolucyjną.
+
+2. [HIGH] Confidence: 0.90 | Basis: Facts
+   Podejście Katalizatora startuje od pojedynczego wysokowartościowego use case'u i buduje "template-driven evolution" z metrykami.
+
+3. [HIGH] Confidence: 0.90 | Basis: Facts
+   Pierwszy model w podejściu Katalizatora został zbudowany w 6 tygodni, drugi w 8 (25% redukcja), trzeci w 6 (50% redukcja).
+
+4. [HIGH] Confidence: 0.80 | Basis: Reasoning
+   Sceptyk wskazuje na nadmierny optymizm co do podobieństwa use case'ów w podejściu Katalizatora.
+
+5. [HIGH] Confidence: 0.80 | Basis: Reasoning
+   Obie strony zgadzają się co do startu od konkretnego problemu biznesowego i iteracyjnego dostarczania wartości.
+
+6. [HIGH] Confidence: 0.70 | Basis: Domain_Knowledge
+   Infrastruktura ma skalować organicznie, a feature store jest potrzebny dopiero przy trzecim modelu.
+
+7. [HIGH] Confidence: 0.70 | Basis: Domain_Knowledge
+   Churn prediction i NLP sentiment analysis wymagają różnych pipeline'ów.
+
+8. [HIGH] Confidence: 0.70 | Basis: Reasoning
+   Strategia "duplikuj i modyfikuj" tworzy N różnych wdrożeń zamiast spójnej platformy.
+
+9. [HIGH] Confidence: 0.70 | Basis: Reasoning
+   Tworzenie N różnych wdrożeń prowadzi do długu technicznego i koszmaru operacyjnego.
+
+10. [MED]  Confidence: 0.60 | Basis: Reasoning
+   Koszt refaktoryzacji trzech rozbieżnych pipeline'ów będzie wyższy niż zaprojektowanie elastycznego rdzenia od początku.
+
+11. [MED]  Confidence: 0.60 | Basis: Reasoning
+   Brakuje eksploracji konkretnych rozwiązań hybrydowych.
+
+======================================================================
+Generated: 2025-10-03T13:51:32.068835
+======================================================================

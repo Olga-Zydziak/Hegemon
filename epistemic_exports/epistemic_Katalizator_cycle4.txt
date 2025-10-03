@@ -1,0 +1,66 @@
+======================================================================
+EPISTEMIC UNCERTAINTY PROFILE
+======================================================================
+
+Agent: Katalizator
+Cycle: 4
+Model: gemini-2.0-flash-exp (Vertex AI)
+Processing time: 1ms
+
+----------------------------------------------------------------------
+SUMMARY STATISTICS
+----------------------------------------------------------------------
+
+Total claims: 11
+Aggregate confidence: 0.66
+
+Confidence distribution:
+  High (≥0.7):   6 claims
+  Medium (0.5-0.7): 5 claims
+  Low (<0.5):    0 claims
+
+Evidence basis distribution:
+  EvidenceBasis.DOMAIN_KNOWLEDGE: 8 (72.7%)
+  EvidenceBasis.REASONING: 1 (9.1%)
+  EvidenceBasis.HEURISTICS: 2 (18.2%)
+
+----------------------------------------------------------------------
+CLAIMS (sorted by confidence, descending)
+----------------------------------------------------------------------
+
+1. [HIGH] Confidence: 0.90 | Basis: Domain_Knowledge
+   The key question is not "how to build a complete pipeline" but "how to deliver value as quickly as possible while maintaining the ability to evolve."
+
+2. [HIGH] Confidence: 0.80 | Basis: Domain_Knowledge
+   Start with a single predictive model with a clearly defined ROI, such as conversion optimization or churn prediction.
+
+3. [HIGH] Confidence: 0.70 | Basis: Domain_Knowledge
+   Instead of building a platform and then looking for applications, build around a specific, high-value use case that becomes a prototype for all future implementations.
+
+4. [HIGH] Confidence: 0.70 | Basis: Domain_Knowledge
+   This is a production system handling real traffic, generating measurable results from day one.
+
+5. [HIGH] Confidence: 0.70 | Basis: Domain_Knowledge
+   Each component is built as a template with clearly defined extension points.
+
+6. [HIGH] Confidence: 0.70 | Basis: Domain_Knowledge
+   When a second use case appears, the template is duplicated and only what is necessary is modified.
+
+7. [MED]  Confidence: 0.60 | Basis: Domain_Knowledge
+   Implement a minimalist pipeline consisting of a simple ETL in Apache Airflow (or even cron + Python), model versioning in MLflow, and deployment via FastAPI with basic monitoring in Prometheus within the first 6 weeks.
+
+8. [MED]  Confidence: 0.60 | Basis: Domain_Knowledge
+   Each model must generate measurable business value within 30 days of deployment.
+
+9. [MED]  Confidence: 0.60 | Basis: Heuristics
+   Infrastructure scales organically - feature store is added only when the third model requires shared features, orchestration when there are 5+ daily jobs, A/B testing when there are 3+ competing models.
+
+10. [MED]  Confidence: 0.50 | Basis: Reasoning
+   After the third use case (around month 4-5), patterns become obvious and a natural abstraction emerges.
+
+11. [MED]  Confidence: 0.50 | Basis: Heuristics
+   The first model should be in production after 6 weeks, the second after another 8 weeks (showing a 25% reduction in time due to reuse), and the third after 6 weeks (50% reduction).
+
+======================================================================
+Generated: 2025-10-03T13:51:32.043397
+======================================================================

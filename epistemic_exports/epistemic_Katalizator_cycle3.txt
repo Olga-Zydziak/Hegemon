@@ -5,75 +5,71 @@ EPISTEMIC UNCERTAINTY PROFILE
 Agent: Katalizator
 Cycle: 3
 Model: gemini-2.0-flash-exp (Vertex AI)
-Processing time: 6198ms
+Processing time: 1ms
 
 ----------------------------------------------------------------------
 SUMMARY STATISTICS
 ----------------------------------------------------------------------
 
-Total claims: 15
-Aggregate confidence: 0.61
+Total claims: 14
+Aggregate confidence: 0.67
 
 Confidence distribution:
-  High (≥0.7):   7 claims
-  Medium (0.5-0.7): 5 claims
-  Low (<0.5):    3 claims
+  High (≥0.7):   10 claims
+  Medium (0.5-0.7): 4 claims
+  Low (<0.5):    0 claims
 
 Evidence basis distribution:
-  EvidenceBasis.REASONING: 4 (26.7%)
-  EvidenceBasis.FACTS: 3 (20.0%)
-  EvidenceBasis.DOMAIN_KNOWLEDGE: 5 (33.3%)
-  EvidenceBasis.HEURISTICS: 3 (20.0%)
+  EvidenceBasis.DOMAIN_KNOWLEDGE: 10 (71.4%)
+  EvidenceBasis.HEURISTICS: 3 (21.4%)
+  EvidenceBasis.REASONING: 1 (7.1%)
 
 ----------------------------------------------------------------------
 CLAIMS (sorted by confidence, descending)
 ----------------------------------------------------------------------
 
-1. [HIGH] Confidence: 0.80 | Basis: Facts
-   Phase one (months 1-2, $150K) establishes the foundation: deploy a Salesforce-native AI assistant that handles the 40% of inquiries requiring only information retrieval.
+1. [HIGH] Confidence: 0.80 | Basis: Domain_Knowledge
+   The first layer, Reproducibility & Observability Foundation, involves implementing MLflow for experiment tracking and Prometheus with Grafana for inference monitoring within two months.
 
-2. [HIGH] Confidence: 0.80 | Basis: Facts
-   Phase two (months 3-4, $200K) introduces intelligent routing and agent augmentation.
+2. [HIGH] Confidence: 0.80 | Basis: Domain_Knowledge
+   This layer involves implementing Airflow for orchestration and a lightweight feature store for 10-15 frequently used features.
 
-3. [HIGH] Confidence: 0.80 | Basis: Facts
-   Phase three (months 5-6, $150K) scales the system and optimizes performance.
+3. [HIGH] Confidence: 0.80 | Basis: Domain_Knowledge
+   This layer includes AutoML for hyperparameter optimization, A/B testing framework, and dynamic resource allocation.
 
-4. [HIGH] Confidence: 0.70 | Basis: Reasoning
-   The company's constraints—limited budget, tight timeline, existing Salesforce infrastructure—define an optimal path: progressive automation through intelligent triage rather than wholesale replacement.
+4. [HIGH] Confidence: 0.70 | Basis: Domain_Knowledge
+   The proposed approach is based on three horizontal capability layers, each delivering business value within 8-12 weeks.
 
 5. [HIGH] Confidence: 0.70 | Basis: Domain_Knowledge
-   Simultaneously, conversation analytics will be implemented on all customer interactions to build a training dataset and identify the next automation opportunities.
+   This system supports the first 3-5 models with full reproducibility and alerts on data drift above 15% PSI.
 
-6. [HIGH] Confidence: 0.70 | Basis: Reasoning
-   This hybrid model targets the 35% of interactions that benefit from human judgment but waste time on information gathering.
+6. [HIGH] Confidence: 0.70 | Basis: Domain_Knowledge
+   The second layer, Automated Retraining & Feature Consistency, is built in parallel for models from the first layer that have achieved production stability.
 
 7. [HIGH] Confidence: 0.70 | Basis: Domain_Knowledge
-   The phased implementation mitigates technical risk, allows for learning and adjustment, and builds internal confidence in AI capabilities.
+   Only models with a proven ROI (>$50k annual savings or >20% improvement in a key metric) are migrated to the second layer.
 
-8. [MED]  Confidence: 0.60 | Basis: Domain_Knowledge
-   This uses existing Einstein capabilities enhanced with custom knowledge base integration, requiring minimal technical risk.
+8. [HIGH] Confidence: 0.70 | Basis: Domain_Knowledge
+   The third layer, Adaptive Intelligence & Auto-scaling, is activated when there are at least 8-10 models in production with stabilized workflows.
 
-9. [MED]  Confidence: 0.60 | Basis: Domain_Knowledge
-   The AI system will triage incoming requests, automatically resolving simple cases while routing complex issues to human agents with full context and suggested responses.
+9. [HIGH] Confidence: 0.70 | Basis: Domain_Knowledge
+   Each layer is production-ready and generates ROI independently of subsequent layers.
 
-10. [MED]  Confidence: 0.60 | Basis: Domain_Knowledge
-   AI capabilities will be expanded to handle the long tail of repetitive complex queries—refund processing, basic troubleshooting, account modifications—while continuously refining models based on accumulated interaction data.
+10. [HIGH] Confidence: 0.70 | Basis: Domain_Knowledge
+   If the organization stops after the second layer, it still has a working, valuable system.
 
-11. [MED]  Confidence: 0.50 | Basis: Reasoning
-   A three-phase system should be implemented over six months to systematically capture efficiency gains while building organizational capability.
+11. [MED]  Confidence: 0.60 | Basis: Reasoning
+   The cost of the first layer is estimated at 1.5 FTE for 8 weeks and infrastructure costs of ~$500/month.
 
-12. [MED]  Confidence: 0.50 | Basis: Reasoning
-   It positions the company for continued automation gains beyond the initial six months as models improve with accumulated data.
+12. [MED]  Confidence: 0.50 | Basis: Heuristics
+   The first layer is expected to reduce debugging time by 60% and eliminate the "works on my machine" syndrome.
 
-13. [LOW]  Confidence: 0.40 | Basis: Heuristics
-   Expected outcome of phase one: 15% cost reduction from volume deflection, baseline CSAT maintenance.
+13. [MED]  Confidence: 0.50 | Basis: Heuristics
+   The timeline for the second layer is 10-12 weeks with 2 FTE, resulting in a 40% reduction in training time and elimination of training-serving skew.
 
-14. [LOW]  Confidence: 0.40 | Basis: Heuristics
-   Expected outcome of phase two: additional 12% cost reduction from improved agent productivity, 5-8 point CSAT improvement from faster, more consistent responses.
-
-15. [LOW]  Confidence: 0.40 | Basis: Heuristics
-   This approach delivers 32% total cost reduction ($480K annual savings) while improving CSAT by 6-10 points through faster resolution and 24/7 availability.
+14. [MED]  Confidence: 0.50 | Basis: Heuristics
+   The third layer reduces time-to-production for new models from 3 months to 3 weeks.
 
 ======================================================================
-Generated: 2025-10-02T13:08:56.820049
+Generated: 2025-10-03T13:51:32.003802
 ======================================================================

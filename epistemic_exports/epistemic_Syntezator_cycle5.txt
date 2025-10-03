@@ -1,0 +1,77 @@
+======================================================================
+EPISTEMIC UNCERTAINTY PROFILE
+======================================================================
+
+Agent: Syntezator
+Cycle: 5
+Model: gemini-2.0-flash-exp (Vertex AI)
+Processing time: 2ms
+
+----------------------------------------------------------------------
+SUMMARY STATISTICS
+----------------------------------------------------------------------
+
+Total claims: 15
+Aggregate confidence: 0.66
+
+Confidence distribution:
+  High (≥0.7):   10 claims
+  Medium (0.5-0.7): 4 claims
+  Low (<0.5):    1 claims
+
+Evidence basis distribution:
+  EvidenceBasis.DOMAIN_KNOWLEDGE: 14 (93.3%)
+  EvidenceBasis.REASONING: 1 (6.7%)
+
+----------------------------------------------------------------------
+CLAIMS (sorted by confidence, descending)
+----------------------------------------------------------------------
+
+1. [HIGH] Confidence: 0.80 | Basis: Domain_Knowledge
+   The first step is to identify and document a high-ROI use case with clear business metrics (e.g., churn prediction saving $100k/month).
+
+2. [HIGH] Confidence: 0.70 | Basis: Domain_Knowledge
+   Phase 1 (Q1) will deploy a single high-ROI model with minimal infrastructure (Airflow, MLflow, FastAPI).
+
+3. [HIGH] Confidence: 0.70 | Basis: Domain_Knowledge
+   The ML Platform Architect will design the overall pipeline architecture, define bounded contexts and API contracts, and ensure scalability without overengineering.
+
+4. [HIGH] Confidence: 0.70 | Basis: Domain_Knowledge
+   The Data Engineering Lead will build data ingestion pipelines, implement schema validation with Great Expectations, and manage feature store adoption.
+
+5. [HIGH] Confidence: 0.70 | Basis: Domain_Knowledge
+   The MLOps Engineer will implement model deployment infrastructure, set up monitoring and alerting, and manage retraining orchestration.
+
+6. [HIGH] Confidence: 0.70 | Basis: Domain_Knowledge
+   The Model Validation Specialist will establish a model governance framework, implement bias detection, and monitor data drift and model performance degradation.
+
+7. [HIGH] Confidence: 0.70 | Basis: Domain_Knowledge
+   The Infrastructure DevOps Engineer will manage cloud resources, optimize compute costs, ensure system reliability and implement disaster recovery.
+
+8. [HIGH] Confidence: 0.70 | Basis: Domain_Knowledge
+   A minimal viable infrastructure will be set up using Airflow for orchestration, MLflow for experiment tracking, and basic Git-based versioning.
+
+9. [HIGH] Confidence: 0.70 | Basis: Domain_Knowledge
+   Models will be deployed via FastAPI with Prometheus monitoring, establishing baseline metrics and alerting thresholds.
+
+10. [HIGH] Confidence: 0.70 | Basis: Domain_Knowledge
+   The model validation framework will include bias detection, performance thresholds (min 5% improvement), and drift monitoring (15% PSI limit).
+
+11. [MED]  Confidence: 0.60 | Basis: Domain_Knowledge
+   Phase 2 (Q2-Q3) will extract reusable patterns and introduce a selective feature store for proven reuse cases.
+
+12. [MED]  Confidence: 0.60 | Basis: Domain_Knowledge
+   Phase 3 (Q4) will establish a bounded contexts architecture with explicit contracts only after validating 5+ models in production.
+
+13. [MED]  Confidence: 0.60 | Basis: Domain_Knowledge
+   The ETL pipeline for the first use case will include schema validation using Great Expectations, targeting 95% data quality.
+
+14. [MED]  Confidence: 0.60 | Basis: Domain_Knowledge
+   A lightweight feature store (Feast or Redis-based) will be implemented only for features with >40% reuse across models.
+
+15. [LOW]  Confidence: 0.40 | Basis: Reasoning
+   The expected outcome is a 70% reduction in deployment time and 15+ models by year-end.
+
+======================================================================
+Generated: 2025-10-03T13:51:32.137305
+======================================================================

@@ -1,0 +1,75 @@
+======================================================================
+EPISTEMIC UNCERTAINTY PROFILE
+======================================================================
+
+Agent: Katalizator
+Cycle: 5
+Model: gemini-2.0-flash-exp (Vertex AI)
+Processing time: 1ms
+
+----------------------------------------------------------------------
+SUMMARY STATISTICS
+----------------------------------------------------------------------
+
+Total claims: 14
+Aggregate confidence: 0.63
+
+Confidence distribution:
+  High (≥0.7):   7 claims
+  Medium (0.5-0.7): 7 claims
+  Low (<0.5):    0 claims
+
+Evidence basis distribution:
+  EvidenceBasis.DOMAIN_KNOWLEDGE: 7 (50.0%)
+  EvidenceBasis.FACTS: 1 (7.1%)
+  EvidenceBasis.REASONING: 6 (42.9%)
+
+----------------------------------------------------------------------
+CLAIMS (sorted by confidence, descending)
+----------------------------------------------------------------------
+
+1. [HIGH] Confidence: 0.90 | Basis: Facts
+   The proposed architecture is based on three independent bounded contexts: Data Platform, Model Platform, and Serving Platform.
+
+2. [HIGH] Confidence: 0.80 | Basis: Domain_Knowledge
+   The real challenge in designing an ML pipeline lies in defining the boundaries of responsibility and contracts between components, not in choosing between a monolith and microservices.
+
+3. [HIGH] Confidence: 0.70 | Basis: Domain_Knowledge
+   Each context operates as an autonomous system with its own SLAs but communicates through explicitly defined contracts: data contracts, model contracts, and serving contracts.
+
+4. [HIGH] Confidence: 0.70 | Basis: Domain_Knowledge
+   Contract testing should be introduced from day one, requiring backward compatibility for every contract change for a minimum of 2 release cycles.
+
+5. [HIGH] Confidence: 0.70 | Basis: Domain_Knowledge
+   Model approval workflow should include automatic gates for bias detection, performance thresholds, and infrastructure cost estimation.
+
+6. [HIGH] Confidence: 0.70 | Basis: Domain_Knowledge
+   The feature store's API is treated as a public contract with semantic versioning.
+
+7. [HIGH] Confidence: 0.70 | Basis: Domain_Knowledge
+   This approach allows different teams to work independently while maintaining the consistency of the entire system.
+
+8. [MED]  Confidence: 0.60 | Basis: Domain_Knowledge
+   A governance layer should be implemented as automated compliance, not bureaucracy.
+
+9. [MED]  Confidence: 0.50 | Basis: Reasoning
+   The Data Platform, including streaming ingestion, schema validation, and versioning, can be built in the first 4 weeks.
+
+10. [MED]  Confidence: 0.50 | Basis: Reasoning
+   The Model Platform, including MLflow, Kubeflow, and DVC, can be ready in 6 weeks.
+
+11. [MED]  Confidence: 0.50 | Basis: Reasoning
+   The Serving Platform, utilizing Seldon Core or KServe and Prometheus/Grafana, can be operational in 8 weeks.
+
+12. [MED]  Confidence: 0.50 | Basis: Reasoning
+   Success is measured by time-to-production of the first model below 3 weeks from a ready Data Platform.
+
+13. [MED]  Confidence: 0.50 | Basis: Reasoning
+   Success is also measured by an average deployment time of subsequent models below 2 days.
+
+14. [MED]  Confidence: 0.50 | Basis: Reasoning
+   Success is measured by zero production incidents related to contract violations in the first 6 months.
+
+======================================================================
+Generated: 2025-10-03T13:51:32.084170
+======================================================================

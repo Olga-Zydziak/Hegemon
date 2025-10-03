@@ -1,0 +1,57 @@
+======================================================================
+EPISTEMIC UNCERTAINTY PROFILE
+======================================================================
+
+Agent: Gubernator
+Cycle: 5
+Model: gemini-2.0-flash-exp (Vertex AI)
+Processing time: 1ms
+
+----------------------------------------------------------------------
+SUMMARY STATISTICS
+----------------------------------------------------------------------
+
+Total claims: 8
+Aggregate confidence: 0.76
+
+Confidence distribution:
+  High (≥0.7):   6 claims
+  Medium (0.5-0.7): 2 claims
+  Low (<0.5):    0 claims
+
+Evidence basis distribution:
+  EvidenceBasis.FACTS: 3 (37.5%)
+  EvidenceBasis.REASONING: 4 (50.0%)
+  EvidenceBasis.DOMAIN_KNOWLEDGE: 1 (12.5%)
+
+----------------------------------------------------------------------
+CLAIMS (sorted by confidence, descending)
+----------------------------------------------------------------------
+
+1. [HIGH] Confidence: 0.90 | Basis: Facts
+   Katalizator zaproponował architekturę opartą na trzech bounded contexts (Data Platform, Model Platform, Serving Platform) z jawnymi kontraktami i governance layer jako automatyzacją compliance.
+
+2. [HIGH] Confidence: 0.90 | Basis: Facts
+   Timeline: Data Platform w 4 tygodnie, Model Platform w 6 tygodni, Serving Platform w 8 tygodni, z feature store jako shared kernel.
+
+3. [HIGH] Confidence: 0.90 | Basis: Facts
+   Metryki sukcesu: time-to-production poniżej 3 tygodni, deployment kolejnych modeli w 2 dni, zero contract violations przez 6 miesięcy.
+
+4. [HIGH] Confidence: 0.80 | Basis: Reasoning
+   Fundamentalny konflikt między ambicją architektoniczną a realistycznym timeline pozostaje nierozwiązany.
+
+5. [HIGH] Confidence: 0.70 | Basis: Reasoning
+   Sceptyk wskazuje na nierealistyczny harmonogram.
+
+6. [HIGH] Confidence: 0.70 | Basis: Reasoning
+   Ignorowanie złożoności pętli feedbacku między serving a data.
+
+7. [MED]  Confidence: 0.60 | Basis: Domain_Knowledge
+   Kubeflow sam może zająć kwartał.
+
+8. [MED]  Confidence: 0.60 | Basis: Reasoning
+   Feature store jako shared kernel staje się centralnym punktem awarii i wąskim gardłem organizacyjnym.
+
+======================================================================
+Generated: 2025-10-03T13:51:32.111586
+======================================================================

@@ -1,0 +1,62 @@
+======================================================================
+EPISTEMIC UNCERTAINTY PROFILE
+======================================================================
+
+Agent: Sceptyk
+Cycle: 4
+Model: gemini-2.0-flash-exp (Vertex AI)
+Processing time: 1ms
+
+----------------------------------------------------------------------
+SUMMARY STATISTICS
+----------------------------------------------------------------------
+
+Total claims: 10
+Aggregate confidence: 0.63
+
+Confidence distribution:
+  High (≥0.7):   4 claims
+  Medium (0.5-0.7): 6 claims
+  Low (<0.5):    0 claims
+
+Evidence basis distribution:
+  EvidenceBasis.REASONING: 5 (50.0%)
+  EvidenceBasis.DOMAIN_KNOWLEDGE: 5 (50.0%)
+
+----------------------------------------------------------------------
+CLAIMS (sorted by confidence, descending)
+----------------------------------------------------------------------
+
+1. [HIGH] Confidence: 0.80 | Basis: Domain_Knowledge
+   Jeśli pierwszy model dotyczy predykcji churn na danych tabelarycznych, a drugi analizy sentymentu w oparciu o NLP, "szablon" ETL, feature engineeringu i serwowania staje się niemal bezużyteczny.
+
+2. [HIGH] Confidence: 0.70 | Basis: Reasoning
+   Prowadzi to do powstawania rozbieżnych, izolowanych potoków, a nie spójnej platformy.
+
+3. [HIGH] Confidence: 0.70 | Basis: Domain_Knowledge
+   Koszt refaktoryzacji trzech różnych potoków w celu np. implementacji wspólnego feature store'a w piątym miesiącu będzie znacznie wyższy niż zaprojektowanie od początku bardziej elastycznego, choć wciąż minimalistycznego, rdzenia.
+
+4. [HIGH] Confidence: 0.70 | Basis: Reasoning
+   Zamiast zarządzać jedną platformą, zespół MLOps będzie musiał utrzymywać N niemal identycznych, ale jednak różnych wdrożeń.
+
+5. [MED]  Confidence: 0.60 | Basis: Reasoning
+   Podejście "template-driven evolution" obarczone jest fundamentalnymi wadami, które mogą prowadzić do akumulacji długu technicznego i impasu operacyjnego.
+
+6. [MED]  Confidence: 0.60 | Basis: Domain_Knowledge
+   Założenie, że kolejne przypadki użycia będą na tyle podobne do pierwszego, aby szablon był efektywny, jest nadmiernie optymistyczne.
+
+7. [MED]  Confidence: 0.60 | Basis: Domain_Knowledge
+   Strategia "duplikuj i modyfikuj" tworzy iluzję szybkości, która nie skaluje się operacyjnie.
+
+8. [MED]  Confidence: 0.60 | Basis: Domain_Knowledge
+   Debugowanie, aktualizacje bezpieczeństwa i monitoring stają się koszmarem.
+
+9. [MED]  Confidence: 0.50 | Basis: Reasoning
+   Minimalizm jest mylony z brakiem przezorności architektonicznej.
+
+10. [MED]  Confidence: 0.50 | Basis: Reasoning
+   Obiecana 25-50% redukcja czasu wdrożenia szybko zostanie zniwelowana przez rosnący narzut operacyjny.
+
+======================================================================
+Generated: 2025-10-03T13:51:32.056335
+======================================================================

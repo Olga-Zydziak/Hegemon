@@ -5,43 +5,40 @@ EPISTEMIC UNCERTAINTY PROFILE
 Agent: Sceptyk
 Cycle: 2
 Model: gemini-2.0-flash-exp (Vertex AI)
-Processing time: 1740ms
+Processing time: 2ms
 
 ----------------------------------------------------------------------
 SUMMARY STATISTICS
 ----------------------------------------------------------------------
 
-Total claims: 5
-Aggregate confidence: 0.66
+Total claims: 4
+Aggregate confidence: 0.75
 
 Confidence distribution:
   High (≥0.7):   3 claims
-  Medium (0.5-0.7): 2 claims
+  Medium (0.5-0.7): 1 claims
   Low (<0.5):    0 claims
 
 Evidence basis distribution:
-  EvidenceBasis.DOMAIN_KNOWLEDGE: 2 (40.0%)
-  EvidenceBasis.REASONING: 3 (60.0%)
+  EvidenceBasis.DOMAIN_KNOWLEDGE: 3 (75.0%)
+  EvidenceBasis.REASONING: 1 (25.0%)
 
 ----------------------------------------------------------------------
 CLAIMS (sorted by confidence, descending)
 ----------------------------------------------------------------------
 
-1. [HIGH] Confidence: 0.80 | Basis: Domain_Knowledge
-   This figure fails to account for the "long tail" of nuance in seemingly simple queries (e.g., split shipments, damaged packaging).
+1. [HIGH] Confidence: 0.90 | Basis: Domain_Knowledge
+   Prawdziwie automatyczny retraining wymaga solidnego monitoringu dryftu danych i konceptu, zaawansowanej walidacji oraz logiki biznesowej określającej, kiedy nowy model jest faktycznie leps
 
-2. [HIGH] Confidence: 0.70 | Basis: Domain_Knowledge
-   The phased, intelligence-amplification model is conceptually sound.
+2. [HIGH] Confidence: 0.80 | Basis: Domain_Knowledge
+   Cel Stage 1 – wdrożenie 3 modeli z „automatycznym retrainingiem” w 3 miesiące przez 2 inżynierów – drastycznie nie doszacowuje złożoności.
 
-3. [HIGH] Confidence: 0.70 | Basis: Reasoning
-   These assumptions introduce significant risk to the budget, timeline, and customer satisfaction goals.
+3. [HIGH] Confidence: 0.70 | Basis: Domain_Knowledge
+   Etapowe podejście oparte na wartości biznesowej jest strategicznie słuszne.
 
 4. [MED]  Confidence: 0.60 | Basis: Reasoning
-   The implementation plan rests on several overly optimistic assumptions.
-
-5. [MED]  Confidence: 0.50 | Basis: Reasoning
-   The projection that 45% of inquiries can be fully automated within eight weeks is particularly precarious.
+   Proponowany plan zawiera kilka krytycznych, zbyt optymistycznych założeń, które zagrażają jego wykonalności.
 
 ======================================================================
-Generated: 2025-10-02T13:08:01.272703
+Generated: 2025-10-03T13:51:31.973384
 ======================================================================
