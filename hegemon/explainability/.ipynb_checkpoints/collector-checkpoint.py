@@ -221,3 +221,44 @@ class ExplainabilityCollector:
             stats["extractor_model"] = self.claim_extractor.model_name
 
         return stats
+    
+# ============================================================================
+# Global Collector Instance (Singleton Pattern)
+# ============================================================================
+
+_collector_instance: ExplainabilityCollector | None = None
+
+
+def get_explainability_collector() -> ExplainabilityCollector | None:
+    """
+    Get global explainability collector instance.
+    
+    Returns singleton instance if explainability is enabled,
+    None otherwise.
+    
+    Returns:
+        ExplainabilityCollector instance or None
+    
+    Complexity: O(1)
+    """
+    global _collector_instance
+    
+    try:
+        from hegemon.config import get_settings
+        
+        settings = get_settings()
+        
+        if not settings.explainability.enabled:
+            return None
+        
+        # Lazy initialization
+        if _collector_instance is None:
+            _collector_instance = ExplainabilityCollector(settings=settings)
+        
+        return _collector_instance
+        
+    except Exception as e:
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.warning(f"Failed to get explainability collector: {e}")
+        return None
