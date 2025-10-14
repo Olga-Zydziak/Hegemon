@@ -21,9 +21,22 @@ pytest-cov==6.0.0
 pytest-mock==3.14.0
 mypy==1.13.0
 ruff==0.13.2
+black
 
 # Type Stubs
 types-requests==2.32.0.20240914
 
 matplotlib==3.10.6
 networkx==3.5
+
+# Data Validation
+pydantic>=2.8.0,<3.0.0
+pydantic-settings>=2.4.0,<3.0.0
+
+# Jupyter UI (Phase 2.4)
+ipywidgets>=8.1.0,<9.0.0
+IPython>=8.12.0,<9.0.0
+notebook>=7.0.0,<8.0.0
+
+# Environment
+python-dotenv>=1.0.0,<2.0.0
