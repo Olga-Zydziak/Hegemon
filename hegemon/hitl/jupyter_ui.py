@@ -381,13 +381,23 @@ class CheckpointUI:
         submit_button.on_click(on_submit)
         
         # Display widgets
-        display(widgets.VBox([
+        widget_box = widgets.VBox([
             widgets.HTML("<h3>👤 Your Feedback</h3>"),
             decision_widget,
             guidance_widget,
             submit_button,
             output_area,
-        ]))
+        ])
+        display(widget_box)
+        
+        # Force Jupyter to flush display before waiting
+        # This ensures widgets are fully rendered and interactive
+        import sys
+        sys.stdout.flush()
+        
+        # Small delay to ensure widgets are attached to DOM
+        import time
+        time.sleep(0.5)
         
         # Wait for submission using threading.Event (releases GIL, allows callbacks)
         # Timeout after 10 minutes
