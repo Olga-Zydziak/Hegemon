@@ -13,18 +13,31 @@ import streamlit as st
 
 def collect_feedback(checkpoint_data: dict[str, Any]) -> dict[str, Any] | None:
     """Collect user feedback for checkpoint.
-    
+
     Args:
         checkpoint_data: Current checkpoint data
-        
+
     Returns:
         Feedback dict if submitted, None if not yet submitted
-        
+
     Complexity: O(1)
     """
+    # Generate unique keys based on checkpoint to prevent state collision
+    checkpoint_id = checkpoint_data.get("review_package", {}).get("checkpoint", "unknown")
+    cycle = checkpoint_data.get("cycle", 0)
+    unique_suffix = f"{checkpoint_id}_{cycle}"
+
+    # Initialize session state keys if this is a new checkpoint
+    if f"_last_checkpoint" not in st.session_state or st.session_state._last_checkpoint != unique_suffix:
+        # Reset all feedback widget keys for new checkpoint
+        for key in ["feedback_decision", "feedback_guidance", "feedback_priority", "feedback_concerns"]:
+            if key in st.session_state:
+                del st.session_state[key]
+        st.session_state._last_checkpoint = unique_suffix
+
     st.markdown("### 👤 Your Feedback")
     st.caption("Review the output above and provide your decision")
-    
+
     # Decision selection
     decision = st.radio(
         "Decision:",
@@ -65,13 +78,17 @@ def collect_feedback(checkpoint_data: dict[str, Any]) -> dict[str, Any] | None:
                 "to help the agent improve"
             )
     
+    # Initialize optional fields with default values for safety
+    priority_claims = ""
+    flagged_concerns = ""
+
     # Priority claims (optional, advanced)
     with st.expander("⭐ Advanced: Priority Claims (Optional)"):
         st.caption(
             "Mark specific claims that should receive special attention "
             "in the next round"
         )
-        
+
         priority_claims = st.text_area(
             "Priority claims (one per line):",
             placeholder=(
@@ -82,14 +99,14 @@ def collect_feedback(checkpoint_data: dict[str, Any]) -> dict[str, Any] | None:
             height=100,
             key="feedback_priority",
         )
-    
+
     # Flagged concerns (for Skeptic)
     with st.expander("🚩 Advanced: Flagged Concerns (Optional)"):
         st.caption(
             "Flag specific concerns for the Skeptic agent to scrutinize "
             "in the next round"
         )
-        
+
         flagged_concerns = st.text_area(
             "Concerns to flag (one per line):",
             placeholder=(
@@ -131,29 +148,47 @@ def collect_feedback(checkpoint_data: dict[str, Any]) -> dict[str, Any] | None:
                 "Please provide at least 10 characters of guidance."
             )
             return None
-        
+
+        # Safe data extraction with defaults
+        try:
+            checkpoint_value = checkpoint_data.get("review_package", {}).get(
+                "checkpoint", "unknown"
+            )
+        except (AttributeError, TypeError):
+            st.error("❌ Invalid checkpoint data format")
+            checkpoint_value = "unknown"
+
+        # Build feedback dict with safe list comprehensions
+        try:
+            priority_list = [
+                claim.strip()
+                for claim in (priority_claims or "").split("\n")
+                if claim.strip()
+            ]
+        except (AttributeError, TypeError):
+            priority_list = []
+
+        try:
+            concerns_list = [
+                concern.strip()
+                for concern in (flagged_concerns or "").split("\n")
+                if concern.strip()
+            ]
+        except (AttributeError, TypeError):
+            concerns_list = []
+
         # Build feedback dict
         feedback = {
             "decision": decision,
-            "guidance": guidance.strip(),
-            "priority_claims": [
-                claim.strip()
-                for claim in priority_claims.split("\n")
-                if claim.strip()
-            ] if priority_claims else [],
-            "flagged_concerns": [
-                concern.strip()
-                for concern in flagged_concerns.split("\n")
-                if concern.strip()
-            ] if flagged_concerns else [],
-            "checkpoint": checkpoint_data.get("review_package", {}).get(
-                "checkpoint", "unknown"
-            ),
+            "guidance": guidance.strip() if guidance else "",
+            "priority_claims": priority_list,
+            "flagged_concerns": concerns_list,
+            "checkpoint": checkpoint_value,
             "timestamp": None,  # Will be set by backend
         }
-        
+
         return feedback
-    
+
     return None
 
 
