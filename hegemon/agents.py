@@ -28,19 +28,11 @@ from hegemon.schemas import (
     FinalPlan,
     GovernorEvaluation,
 )
+from hegemon.explainability import ExplainabilityCollector, ConceptClassifier
 
 logger = logging.getLogger(__name__)
-from hegemon.explainability import ExplainabilityCollector, ConceptClassifier
-from hegemon.config.settings import get_settings
 
-# Singleton collector instance
-from hegemon.explainability import ExplainabilityCollector, ConceptClassifier
-import langchain
-from langchain.cache import SQLiteCache
-langchain.llm_cache = SQLiteCache(database_path=".langchain_hegemon.db")
-
-
-# Singleton collector instance
+# Singleton collector instance for explainability tracking
 _explainability_collector: ExplainabilityCollector | None = None
 
 

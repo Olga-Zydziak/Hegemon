@@ -87,8 +87,9 @@ def create_checkpoint_node(
         )
         
         # Process feedback
+        # Note: human_feedback uses operator.add reducer, so return single item (not list)
         updates: dict = {
-            "human_feedback": [feedback],
+            "human_feedback": feedback,
             "current_checkpoint": None,
             "paused_at": None,
         }
@@ -116,35 +117,52 @@ def create_checkpoint_node(
 
 def should_continue_after_gubernator(
     state: DebateStateHITL,
-) -> Literal["checkpoint_pre_synthesis", "katalizator", "syntezator"]:
+) -> Literal["checkpoint_pre_synthesis", "increment_cycle", "syntezator"]:
     """Routing after Gubernator evaluation.
-    
+
     Args:
         state: Current state
-        
+
     Returns:
         Next node name
-        
+
     Complexity: O(1)
     """
     settings = get_settings()
-    
+
     # Check if rejected by human
     if state.human_feedback and state.human_feedback[-1].decision == FeedbackDecision.REJECT:
         return "syntezator"  # End debate
-    
+
     # Check revision limit
     if state.revision_count >= state.max_revisions_per_cycle:
         return "checkpoint_pre_synthesis"
-    
+
     # Standard consensus check
     if state.current_consensus_score >= settings.debate.consensus_threshold:
         return "checkpoint_pre_synthesis"
-    
+
     if state.cycle_count >= settings.debate.max_cycles:
         return "checkpoint_pre_synthesis"
-    
-    return "katalizator"
+
+    return "increment_cycle"
+
+
+def increment_cycle(state: DebateStateHITL) -> dict:
+    """Increment debate cycle counter.
+
+    Called when looping back to start a new debate cycle.
+
+    Args:
+        state: Current debate state
+
+    Returns:
+        State updates with incremented cycle_count
+
+    Complexity: O(1)
+    """
+    new_cycle = state.cycle_count + 1
+    return {"cycle_count": new_cycle}
 
 
 def create_hegemon_graph_hitl_v3(
@@ -215,6 +233,7 @@ def create_hegemon_graph_hitl_v3(
     graph.add_node("checkpoint_post_evaluation", create_checkpoint_node(
         CheckpointType.POST_EVALUATION, checkpoint_handler
     ))
+    graph.add_node("increment_cycle", increment_cycle)
     graph.add_node("checkpoint_pre_synthesis", create_checkpoint_node(
         CheckpointType.PRE_SYNTHESIS, checkpoint_handler
     ))
@@ -232,12 +251,15 @@ def create_hegemon_graph_hitl_v3(
         "checkpoint_post_evaluation",
         should_continue_after_gubernator,
         {
-            "katalizator": "katalizator",
+            "increment_cycle": "increment_cycle",
             "checkpoint_pre_synthesis": "checkpoint_pre_synthesis",
             "syntezator": "syntezator",
         },
     )
-    
+
+    # Loop back to katalizator after incrementing cycle
+    graph.add_edge("increment_cycle", "katalizator")
+
     graph.add_edge("checkpoint_pre_synthesis", "syntezator")
     graph.add_edge("syntezator", END)
     
