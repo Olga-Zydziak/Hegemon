@@ -322,17 +322,19 @@ class CheckpointUI:
     
     def _collect_feedback(self, review: ReviewPackage) -> HumanFeedback:
         """Collect user feedback via widgets.
-        
+
         Args:
             review: Review package
-            
+
         Returns:
             Collected feedback
-            
+
         Complexity: O(1) - blocking wait for user input
         """
+        import sys
         import threading
-        
+        import time
+
         # Decision buttons
         decision_widget = widgets.RadioButtons(
             options=[
@@ -343,7 +345,7 @@ class CheckpointUI:
             description="Decision:",
             disabled=False,
         )
-        
+
         # Guidance text area
         guidance_widget = widgets.Textarea(
             value="",
@@ -352,71 +354,133 @@ class CheckpointUI:
             disabled=False,
             layout=widgets.Layout(width="100%", height="100px"),
         )
-        
+
         # Submit button
         submit_button = widgets.Button(
             description="Submit Feedback",
             button_style="success",
             icon="check",
         )
-        
+
+        # Cancel button for manual timeout
+        cancel_button = widgets.Button(
+            description="Auto-Approve",
+            button_style="warning",
+            icon="fast-forward",
+        )
+
         # Container
         output_area = widgets.Output()
-        
-        # Threading event to avoid deadlock
+
+        # Threading event to avoid deadlock - using shared state instead of pure blocking
         submit_event = threading.Event()
-        
+        feedback_data: dict[str, Any] = {"submitted": False, "cancelled": False}
+
         def on_submit(_: Any) -> None:
             """Handle submit button click."""
-            with output_area:
-                clear_output(wait=True)
-                display(HTML("<p>✅ Feedback submitted! Continuing debate...</p>"))
-            # Disable button after submit
-            submit_button.disabled = True
-            submit_button.button_style = "info"
-            submit_button.description = "Submitted ✓"
-            # Signal that submission is complete
-            submit_event.set()
-        
+            try:
+                with output_area:
+                    clear_output(wait=True)
+                    display(HTML("<p>✅ Feedback submitted! Continuing debate...</p>"))
+                # Disable buttons after submit
+                submit_button.disabled = True
+                cancel_button.disabled = True
+                submit_button.button_style = "info"
+                submit_button.description = "Submitted ✓"
+                # Store feedback data
+                feedback_data["submitted"] = True
+                feedback_data["decision"] = decision_widget.value
+                feedback_data["guidance"] = guidance_widget.value
+                # Signal completion
+                submit_event.set()
+            except Exception as e:
+                with output_area:
+                    clear_output(wait=True)
+                    display(HTML(f"<p style='color: red;'>❌ Error: {html.escape(str(e))}</p>"))
+
+        def on_cancel(_: Any) -> None:
+            """Handle cancel/auto-approve button click."""
+            try:
+                with output_area:
+                    clear_output(wait=True)
+                    display(HTML("<p style='color: orange;'>⏩ Auto-approved! Continuing...</p>"))
+                # Disable buttons
+                submit_button.disabled = True
+                cancel_button.disabled = True
+                cancel_button.button_style = "info"
+                cancel_button.description = "Auto-Approved ✓"
+                # Mark as cancelled
+                feedback_data["cancelled"] = True
+                # Signal completion
+                submit_event.set()
+            except Exception as e:
+                with output_area:
+                    clear_output(wait=True)
+                    display(HTML(f"<p style='color: red;'>❌ Error: {html.escape(str(e))}</p>"))
+
         submit_button.on_click(on_submit)
-        
-        # Display widgets
+        cancel_button.on_click(on_cancel)
+
+        # Display widgets with cancel option
+        button_box = widgets.HBox([submit_button, cancel_button])
         widget_box = widgets.VBox([
             widgets.HTML("<h3>👤 Your Feedback</h3>"),
             decision_widget,
             guidance_widget,
-            submit_button,
+            button_box,
             output_area,
         ])
         display(widget_box)
-        
+
         # Force Jupyter to flush display before waiting
         # This ensures widgets are fully rendered and interactive
-        import sys
         sys.stdout.flush()
-        
-        # Small delay to ensure widgets are attached to DOM
-        import time
+
+        # Delay to ensure widgets are attached to DOM and event handlers registered
         time.sleep(0.5)
-        
-        # Wait for submission using threading.Event (releases GIL, allows callbacks)
-        # Timeout after 10 minutes
-        if not submit_event.wait(timeout=600):
+
+        # Use polling mechanism instead of pure blocking to prevent kernel deadlock
+        # This allows the Jupyter kernel to process widget events more reliably
+        timeout_seconds = 600  # 10 minutes
+        poll_interval = 0.5  # Check every 500ms
+        elapsed = 0.0
+
+        while elapsed < timeout_seconds:
+            # Check if event is set (non-blocking with very short timeout)
+            if submit_event.wait(timeout=poll_interval):
+                # Event was set, feedback submitted or cancelled
+                break
+            elapsed += poll_interval
+            # Periodic flush to keep comm channel active
+            if int(elapsed) % 5 == 0:  # Every 5 seconds
+                sys.stdout.flush()
+
+        # Process result based on what happened
+        if feedback_data.get("submitted"):
+            # Normal submission
+            feedback = HumanFeedback(
+                checkpoint=review.checkpoint,
+                decision=FeedbackDecision(feedback_data["decision"]),
+                guidance=feedback_data["guidance"],
+            )
+        elif feedback_data.get("cancelled"):
+            # Manual auto-approve
+            feedback = HumanFeedback(
+                checkpoint=review.checkpoint,
+                decision=FeedbackDecision.APPROVE,
+                guidance="[Auto-approved by user request]",
+            )
+        else:
             # Timeout - use default approve
-            display(HTML("<p style='color: orange;'>⚠️ Timeout - Auto-approving...</p>"))
+            with output_area:
+                clear_output(wait=True)
+                display(HTML("<p style='color: orange;'>⚠️ Timeout (10 min) - Auto-approving...</p>"))
             feedback = HumanFeedback(
                 checkpoint=review.checkpoint,
                 decision=FeedbackDecision.APPROVE,
                 guidance="[Auto-approved due to timeout]",
             )
-        else:
-            # Normal submission
-            feedback = HumanFeedback(
-                checkpoint=review.checkpoint,
-                decision=FeedbackDecision(decision_widget.value),
-                guidance=guidance_widget.value,
-            )
-        
+
         return feedback
     
     @staticmethod
