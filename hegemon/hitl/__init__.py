@@ -12,6 +12,7 @@ __version__ = "2.4.0"
 # Export main components
 from .checkpoint_handler import CheckpointHandler
 from .jupyter_ui import CheckpointUI, create_checkpoint_ui
+from .simple_ui import SimpleCheckpointUI, create_simple_checkpoint_ui
 from .models import (
     CheckpointState,
     CheckpointType,
@@ -51,6 +52,8 @@ __all__ = [
     # UI
     "CheckpointUI",
     "create_checkpoint_ui",
+    "SimpleCheckpointUI",
+    "create_simple_checkpoint_ui",
     # Handler
     "CheckpointHandler",
 ]
