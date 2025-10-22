@@ -149,17 +149,21 @@ def should_continue_after_gubernator(
 
 def create_hegemon_graph_hitl_v3(
     llm: BaseChatModel | None = None,
+    use_simple_ui: bool = False,
 ) -> StateGraph:
     """Create HITL-enhanced Hegemon graph.
-    
+
     Integrates Phase 2.3/2.4 components:
     - Review package generation at checkpoints
     - Interactive Jupyter UI for feedback
     - Feedback processing and injection
-    
+
     Args:
         llm: Optional LLM (uses settings if None)
-        
+        use_simple_ui: If True, use text-based UI (works on Vertex AI, Colab).
+                      If False, use ipywidgets UI (requires jupyterlab-widgets).
+                      Set to True for cloud environments like Vertex AI.
+
     Returns:
         Compiled LangGraph
         
@@ -195,6 +199,7 @@ def create_hegemon_graph_hitl_v3(
     checkpoint_handler = CheckpointHandler(
         review_generator=review_generator,
         mode=None,  # Will be set from state
+        use_simple_ui=use_simple_ui,  # Use text-based UI for cloud environments
     )
     
     # Create graph

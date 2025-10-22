@@ -7,9 +7,10 @@ processing at HITL checkpoints.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Union
 
 from .jupyter_ui import CheckpointUI
+from .simple_ui import SimpleCheckpointUI
 from .models import CheckpointState, CheckpointType, HumanFeedback, InterventionMode
 from .review_package import Layer2Data, Layer6Data, ReviewGenerator
 
@@ -40,17 +41,29 @@ class CheckpointHandler:
         self,
         review_generator: ReviewGenerator,
         mode: InterventionMode = InterventionMode.REVIEWER,
+        use_simple_ui: bool = False,
     ) -> None:
         """Initialize checkpoint handler.
-        
+
         Args:
             review_generator: Review package generator
             mode: Intervention mode for UI
-            
+            use_simple_ui: If True, use SimpleCheckpointUI (text-based, works everywhere).
+                          If False, use CheckpointUI (ipywidgets, may fail in cloud).
+                          Set to True for Vertex AI, Colab, Kaggle, etc.
+
         Complexity: O(1)
         """
         self.review_generator = review_generator
-        self.ui = CheckpointUI(mode=mode, on_feedback_callback=self._on_feedback)
+
+        # Choose UI based on environment
+        if use_simple_ui:
+            # Simple text-based UI - works everywhere (Vertex AI, Colab, etc.)
+            self.ui: Union[CheckpointUI, SimpleCheckpointUI] = SimpleCheckpointUI(mode=mode)
+        else:
+            # Widget-based UI - requires ipywidgets extension
+            self.ui = CheckpointUI(mode=mode, on_feedback_callback=self._on_feedback)
+
         self.checkpoint_history: list[CheckpointState] = []
     
     def handle_checkpoint(
